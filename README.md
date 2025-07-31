@@ -2,32 +2,48 @@
 
 <div align="center">
 
-一个强大的Office文件翻译工具库，支持PDF、Excel、PPT和Word文档的批量翻译。
+A powerful Office file translation tool library that supports batch translation of PDF, Excel, PPT, and Word documents.
 
 [![Python](https://img.shields.io/badge/Python-3.7+-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![GitHub Stars](https://img.shields.io/github/stars/your-username/Offitrans.svg)](https://github.com/your-username/Offitrans/stargazers)
+[![PyPI](https://img.shields.io/pypi/v/offitrans.svg)](https://pypi.org/project/offitrans/)
+[![GitHub Stars](https://img.shields.io/github/stars/minglu6/Offitrans.svg)](https://github.com/minglu6/Offitrans/stargazers)
+
+**English** | [中文](README_ZH.md)
 
 </div>
 
-## ✨ 特性
+## ✨ Features
 
-- 🔄 **多格式支持**：支持PDF、Excel、PPT、Word文档翻译
-- 🌍 **多语言翻译**：支持中文、英文、泰文、日文、韩文、法文、德文、西班牙文等
-- 🎨 **格式保持**：翻译后保持原有格式、样式和布局
-- 🖼️ **图片保护**：完整保护文档中的图片不变形
-- ⚡ **批量处理**：高效的批量翻译，支持文本去重和API调用优化
-- 🔧 **易于集成**：简洁的API设计，方便集成到其他项目中
-- 📊 **富文本支持**：支持复杂的富文本格式和合并单元格
-- 🛡️ **错误处理**：完善的错误处理和重试机制
+- 🔄 **Multi-format Support**: Supports PDF, Excel, PPT, and Word document translation
+- 🌍 **Multi-language Translation**: Supports Chinese, English, Thai, Japanese, Korean, French, German, Spanish, and more
+- 🎨 **Format Preservation**: Maintains original formatting, styles, and layout after translation
+- 🖼️ **Image Protection**: Complete protection of images in documents without distortion
+- ⚡ **Batch Processing**: Efficient batch translation with text deduplication and API call optimization
+- 🔧 **Easy Integration**: Clean API design for easy integration into other projects
+- 📊 **Rich Text Support**: Supports complex rich text formats and merged cells
+- 🛡️ **Error Handling**: Comprehensive error handling and retry mechanisms
+- 💻 **Command Line Tool**: Convenient CLI interface with batch operation support
 
-## 🚀 安装
+## 🚀 Installation
+
+### Install from PyPI (Recommended)
 
 ```bash
-pip install -r requirements.txt
+# Basic version
+pip install offitrans
+
+# Full version with all dependencies
+pip install offitrans[full]
+
+# Install specific format support as needed
+pip install offitrans[excel]      # Excel support
+pip install offitrans[word]       # Word support  
+pip install offitrans[pdf]        # PDF support
+pip install offitrans[powerpoint] # PowerPoint support
 ```
 
-或者从源码安装：
+### Install from Source
 
 ```bash
 git clone https://github.com/minglu6/Offitrans.git
@@ -35,187 +51,299 @@ cd Offitrans
 pip install -e .
 ```
 
-## 📦 依赖
+## 🎯 Quick Start
 
-- `openpyxl` - Excel文件处理
-- `python-docx` - Word文档处理  
-- `PyPDF2` - PDF文件处理
-- `python-pptx` - PowerPoint文件处理
-- `requests` - HTTP请求
-- `Pillow` - 图片处理
-
-## 🎯 快速开始
-
-### Excel文件翻译
-
-```python
-from excel_translate import ExcelTranslatorV2
-
-# 创建翻译器实例
-translator = ExcelTranslatorV2()
-
-# 翻译Excel文件
-success = translator.replace_text_in_excel(
-    excel_path="input.xlsx",
-    output_path="output_translated.xlsx", 
-    target_language="th"  # 翻译为泰文
-)
-
-if success:
-    print("翻译完成！")
-```
-
-### PDF文件翻译
-
-```python
-from pdf_translate import translate_pdf
-
-# 翻译PDF文件
-translate_pdf(
-    input_path="document.pdf",
-    output_path="document_translated.pdf",
-    target_language="en"
-)
-```
-
-### Word文档翻译
-
-```python
-from word_translate import docx_translate
-
-# 翻译Word文档
-docx_translate(
-    input_file="document.docx",
-    output_file="document_translated.docx",
-    target_language="th"
-)
-```
-
-### PPT文件翻译
-
-```python
-from ppt_translate import translate_ppt
-
-# 翻译PPT文件
-translate_ppt(
-    input_path="presentation.pptx", 
-    output_path="presentation_translated.pptx",
-    target_language="ja"
-)
-```
-
-## 🔧 配置
-
-### Google翻译API配置
-
-项目支持Google翻译API，需要配置API密钥：
-
-```python
-from translate_tools import GoogleTranslator
-
-translator = GoogleTranslator(
-    source_lang="zh",
-    target_lang="en", 
-    api_key="your-google-translate-api-key"
-)
-```
-
-### 支持的语言代码
-
-| 语言 | 代码 |
-|------|------|
-| 中文 | zh |
-| 英文 | en |
-| 泰文 | th |
-| 日文 | ja |
-| 韩文 | ko |
-| 法文 | fr |
-| 德文 | de |
-| 西班牙文 | es |
-
-## 📖 详细文档
-
-### Excel翻译器高级功能
-
-```python
-from excel_translate import ExcelTranslatorV2
-
-# 创建带自定义配置的翻译器
-translator = ExcelTranslatorV2(
-    translate_api_key="your-api-key",
-    font_size_adjustment=0.8  # 字体大小调整比例
-)
-
-# 分析Excel文件结构
-analysis = translator.analyze_excel_structure("input.xlsx")
-
-# 智能调整列宽
-translator.smart_adjust_column_width("output.xlsx")
-```
-
-### 批量翻译工具
-
-```python
-from translate_tools import GoogleTranslator
-
-translator = GoogleTranslator(
-    source_lang="zh",
-    target_lang="th",
-    max_workers=5  # 并发线程数
-)
-
-# 批量翻译文本
-texts = ["你好", "世界", "翻译"]
-translated = translator.translate_text_batch(texts)
-```
-
-## 🤝 贡献
-
-我们欢迎任何形式的贡献！请查看 [CONTRIBUTING.md](CONTRIBUTING.md) 了解如何参与项目开发。
-
-### 开发环境设置
+### Command Line Usage
 
 ```bash
-# 克隆仓库
-git clone https://github.com/your-username/Offitrans.git
+# Translate Excel file
+offitrans input.xlsx -t zh -o output_zh.xlsx
+
+# Translate PDF file
+offitrans document.pdf -t en -o document_en.pdf
+
+# Translate Word document
+offitrans document.docx -t th -o document_th.docx
+
+# Translate PowerPoint presentation
+offitrans presentation.pptx -t ja -o presentation_ja.pptx
+
+# View all options
+offitrans --help
+```
+
+### Python API Usage
+
+#### Excel File Translation
+
+```python
+from offitrans.processors.excel import ExcelProcessor
+from offitrans.translators.google import GoogleTranslator
+
+# Create translator and processor
+translator = GoogleTranslator()
+processor = ExcelProcessor()
+
+# Translate Excel file
+processor.translate_file(
+    input_path="input.xlsx",
+    output_path="output_translated.xlsx",
+    translator=translator,
+    target_lang="th"  # Translate to Thai
+)
+```
+
+#### PDF File Translation
+
+```python
+from offitrans.processors.pdf import PDFProcessor
+from offitrans.translators.google import GoogleTranslator
+
+translator = GoogleTranslator()
+processor = PDFProcessor()
+
+processor.translate_file(
+    input_path="document.pdf",
+    output_path="document_translated.pdf",
+    translator=translator,
+    target_lang="en"
+)
+```
+
+#### Word Document Translation
+
+```python
+from offitrans.processors.word import WordProcessor
+from offitrans.translators.google import GoogleTranslator
+
+translator = GoogleTranslator()
+processor = WordProcessor()
+
+processor.translate_file(
+    input_path="document.docx",
+    output_path="document_translated.docx",
+    translator=translator,
+    target_lang="th"
+)
+```
+
+#### PowerPoint Translation
+
+```python
+from offitrans.processors.powerpoint import PowerPointProcessor
+from offitrans.translators.google import GoogleTranslator
+
+translator = GoogleTranslator()
+processor = PowerPointProcessor()
+
+processor.translate_file(
+    input_path="presentation.pptx",
+    output_path="presentation_translated.pptx",
+    translator=translator,
+    target_lang="ja"
+)
+```
+
+## 🔧 Configuration
+
+### Google Translate API Configuration
+
+```python
+from offitrans.translators.google import GoogleTranslator
+
+# Using API key
+translator = GoogleTranslator(api_key="your-google-translate-api-key")
+
+# Or set environment variable
+import os
+os.environ['GOOGLE_TRANSLATE_API_KEY'] = 'your-api-key'
+translator = GoogleTranslator()
+```
+
+### Supported Language Codes
+
+| Language | Code | Language | Code |
+|----------|------|----------|------|
+| Chinese | zh | English | en |
+| Thai | th | Japanese | ja |
+| Korean | ko | French | fr |
+| German | de | Spanish | es |
+
+## 📖 Advanced Usage
+
+### Batch Translation
+
+```python
+from offitrans.core.utils import BatchProcessor
+from offitrans.translators.google import GoogleTranslator
+
+# Batch process multiple files
+processor = BatchProcessor()
+translator = GoogleTranslator()
+
+files = ["doc1.xlsx", "doc2.docx", "doc3.pdf"]
+processor.process_files(files, translator, target_lang="en")
+```
+
+### Custom Translator
+
+```python
+from offitrans.translators.base_api import BaseTranslator
+
+class CustomTranslator(BaseTranslator):
+    def translate(self, text, source_lang="auto", target_lang="en"):
+        # Implement custom translation logic
+        return translated_text
+
+# Use custom translator
+translator = CustomTranslator()
+```
+
+### Cache Configuration
+
+```python
+from offitrans.core.cache import TranslationCache
+
+# Enable translation cache
+cache = TranslationCache(cache_dir="./translation_cache")
+translator = GoogleTranslator(cache=cache)
+```
+
+## 🏗️ Project Architecture
+
+```
+offitrans/
+├── cli/                    # Command line interface
+│   ├── __init__.py
+│   └── main.py            # CLI entry point
+├── core/                  # Core functionality
+│   ├── base.py           # Base class definitions
+│   ├── cache.py          # Caching mechanism
+│   ├── config.py         # Configuration management
+│   └── utils.py          # Utility functions
+├── processors/           # Document processors
+│   ├── base.py          # Processor base class
+│   ├── excel.py         # Excel processor
+│   ├── pdf.py           # PDF processor
+│   ├── powerpoint.py    # PowerPoint processor
+│   └── word.py          # Word processor
+├── translators/         # Translation engines
+│   ├── base_api.py      # Translator base class
+│   └── google.py        # Google Translate implementation
+└── exceptions/          # Exception definitions
+    └── errors.py        # Custom exceptions
+```
+
+## 🧪 Testing
+
+### Running Tests
+
+```bash
+# Install development dependencies
+pip install -e .[dev]
+
+# Run all tests
+pytest
+
+# Run specific tests
+pytest tests/unit/test_processors.py
+
+# Run tests with coverage report
+pytest --cov=offitrans --cov-report=html
+```
+
+### Test Structure
+
+```
+tests/
+├── unit/                    # Unit tests
+│   ├── test_core.py
+│   ├── test_processors.py
+│   └── test_translators.py
+├── integration/             # Integration tests
+│   └── test_end_to_end.py
+└── fixtures/               # Test data
+    ├── sample.xlsx
+    ├── sample.docx
+    └── sample.pdf
+```
+
+## 🤝 Contributing
+
+We welcome contributions of any kind! Please check [CONTRIBUTING.md](CONTRIBUTING.md) to learn how to participate in project development.
+
+### Development Environment Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/minglu6/Offitrans.git
 cd Offitrans
 
-# 创建虚拟环境
+# Create virtual environment
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# 安装依赖
-pip install -r requirements.txt
+# Install development dependencies
+pip install -e .[dev]
 
-# 运行测试
-python -m pytest tests/
+# Install pre-commit hooks
+pre-commit install
+
+# Run tests
+pytest
 ```
 
-## 📝 许可证
+## 📝 License
 
-本项目采用 [MIT许可证](LICENSE)。
+This project is licensed under the [MIT License](LICENSE).
 
-## 🔗 相关链接
+## 🔗 Related Links
 
-- [GitHub仓库](https://github.com/your-username/Offitrans)
-- [问题反馈](https://github.com/your-username/Offitrans/issues)
-- [版本发布](https://github.com/your-username/Offitrans/releases)
+- [GitHub Repository](https://github.com/minglu6/Offitrans)
+- [PyPI Package](https://pypi.org/project/offitrans/)
+- [Issue Tracker](https://github.com/minglu6/Offitrans/issues)
+- [Releases](https://github.com/minglu6/Offitrans/releases)
+- [Changelog](CHANGELOG.md)
 
-## 📊 项目状态
+## 📊 Project Status
 
-- ✅ Excel翻译 - 完全支持
-- ✅ Word翻译 - 基础支持  
-- ✅ PDF翻译 - 基础支持
-- ✅ PPT翻译 - 基础支持
-- 🔄 OCR支持 - 开发中
-- 🔄 更多翻译引擎 - 计划中
+- ✅ Excel Translation - Full support
+- ✅ Word Translation - Basic support  
+- ✅ PDF Translation - Basic support
+- ✅ PPT Translation - Basic support
+- ✅ CLI Tool - Full support
+- 🔄 OCR Support - In development
+- 🔄 More Translation Engines - Planned
 
-## 🙏 致谢
+## 🌟 Use Cases
 
-感谢所有为这个项目做出贡献的开发者和用户！
+### For Businesses
+- **Document Localization**: Translate business documents for international markets
+- **Report Translation**: Convert financial reports and presentations
+- **Contract Translation**: Translate legal documents while preserving formatting
+
+### For Developers
+- **API Integration**: Easy integration into existing applications
+- **Batch Processing**: Process large volumes of documents efficiently
+- **Custom Workflows**: Build custom translation pipelines
+
+### For Individuals
+- **Academic Papers**: Translate research documents and presentations
+- **Personal Documents**: Convert personal files between languages
+- **Educational Content**: Translate learning materials
+
+## 🙏 Acknowledgments
+
+Thanks to all developers and users who have contributed to this project!
+
+### Special Thanks
+
+- Google Translate API for reliable translation services
+- OpenPyXL team for excellent Excel processing capabilities
+- Python community for amazing libraries and tools
 
 ---
 
 <div align="center">
-如果这个项目对您有帮助，请给我们一个 ⭐️
+If this project helps you, please give us a ⭐️
 </div>

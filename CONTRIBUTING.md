@@ -1,283 +1,300 @@
-# 贡献指南
+# Contributing Guide
 
-感谢您对 Offitrans 项目的关注！我们欢迎任何形式的贡献，包括但不限于：
+Thank you for your interest in the Offitrans project! We welcome all forms of contributions, including but not limited to:
 
-- 🐛 报告 Bug
-- 💡 提出新功能建议
-- 📝 改进文档
-- 🔧 提交代码修复
-- ✨ 添加新功能
-- 🌍 翻译和本地化
+- 🐛 Bug reports
+- 💡 Feature suggestions
+- 📝 Documentation improvements
+- 🔧 Code fixes
+- ✨ New features
+- 🌍 Translation and localization
 
-## 📋 贡献前准备
+[中文贡献指南](CONTRIBUTING_ZH.md)
 
-### 开发环境设置
+## 📋 Getting Started
 
-1. **Fork 项目**
+### Development Environment Setup
+
+1. **Fork the Project**
    ```bash
-   # 在GitHub上Fork项目到您的账户
-   # 然后克隆您的Fork
-   git clone https://github.com/minglu6/Offitrans.git
+   # Fork the project on GitHub to your account
+   # Then clone your fork
+   git clone https://github.com/your-username/Offitrans.git
    cd Offitrans
    ```
 
-2. **设置开发环境**
+2. **Set Up Development Environment**
    ```bash
-   # 创建虚拟环境
+   # Create virtual environment
    python -m venv venv
    
-   # 激活虚拟环境
+   # Activate virtual environment
    # Windows
    venv\Scripts\activate
    # macOS/Linux
    source venv/bin/activate
    
-   # 安装依赖
-   pip install -r requirements.txt
+   # Install dependencies
+   pip install -e .[dev]
+   
+   # Install pre-commit hooks
+   pre-commit install
    ```
 
-3. **创建功能分支**
+3. **Create Feature Branch**
    ```bash
    git checkout -b feature/your-feature-name
-   # 或者
+   # or
    git checkout -b fix/your-fix-name
    ```
 
-## 🐛 报告 Bug
+## 🐛 Reporting Bugs
 
-如果您发现了 Bug，请通过 [GitHub Issues](https://github.com/your-username/Offitrans/issues) 报告。
+If you find a bug, please report it via [GitHub Issues](https://github.com/minglu6/Offitrans/issues).
 
-**Bug 报告应包含：**
+**Bug reports should include:**
 
-- 🔍 **清晰的标题和描述**
-- 📱 **运行环境信息**（Python版本、操作系统等）
-- 📝 **重现步骤**
-- 🎯 **期望行为 vs 实际行为**
-- 📋 **相关的错误日志或截图**
-- 📄 **示例文件**（如果涉及特定的Office文件）
+- 🔍 **Clear title and description**
+- 📱 **Environment information** (Python version, OS, etc.)
+- 📝 **Steps to reproduce**
+- 🎯 **Expected vs actual behavior**
+- 📋 **Relevant error logs or screenshots**
+- 📄 **Sample files** (if specific Office files are involved)
 
-### Bug 报告模板
+### Bug Report Template
 
 ```markdown
-## Bug 描述
-简洁清晰地描述这个bug。
+## Bug Description
+A clear and concise description of what the bug is.
 
-## 重现步骤
-1. 执行 '...'
-2. 点击 '....'
-3. 滚动到 '....'
-4. 看到错误
+## Steps to Reproduce
+1. Go to '...'
+2. Click on '....'
+3. Scroll down to '....'
+4. See error
 
-## 期望行为
-清晰简洁地描述您期望发生的事情。
+## Expected Behavior
+A clear and concise description of what you expected to happen.
 
-## 实际行为
-清晰简洁地描述实际发生的事情。
+## Actual Behavior
+A clear and concise description of what actually happened.
 
-## 环境信息
-- OS: [例如 Windows 10, macOS 12.1, Ubuntu 20.04]
-- Python版本: [例如 3.9.7]
-- Offitrans版本: [例如 1.0.0]
+## Environment
+- OS: [e.g. Windows 10, macOS 12.1, Ubuntu 20.04]
+- Python Version: [e.g. 3.9.7]
+- Offitrans Version: [e.g. 1.0.0]
 
-## 附加信息
-添加其他关于问题的上下文信息。
+## Additional Context
+Add any other context about the problem here.
 ```
 
-## 💡 功能建议
+## 💡 Feature Requests
 
-我们欢迎新功能建议！请通过 [GitHub Issues](https://github.com/your-username/Offitrans/issues) 提交。
+We welcome feature suggestions! Please submit them via [GitHub Issues](https://github.com/minglu6/Offitrans/issues).
 
-**功能建议应包含：**
+**Feature requests should include:**
 
-- 🎯 **问题描述**：您想解决什么问题？
-- 💡 **解决方案**：您建议的功能如何解决这个问题？
-- 🔄 **替代方案**：您考虑过其他解决方案吗？
-- 📊 **使用场景**：谁会使用这个功能，在什么情况下使用？
+- 🎯 **Problem description**: What problem are you trying to solve?
+- 💡 **Proposed solution**: How would your suggested feature solve this problem?
+- 🔄 **Alternative solutions**: Have you considered other solutions?
+- 📊 **Use cases**: Who would use this feature and when?
 
-## 🔧 代码贡献
+## 🔧 Code Contributions
 
-### 编码规范
+### Coding Standards
 
-1. **代码风格**
-   - 遵循 [PEP 8](https://www.python.org/dev/peps/pep-0008/) 编码规范
-   - 使用 4 个空格进行缩进
-   - 行长度限制为 88 字符（Black 默认设置）
+1. **Code Style**
+   - Follow [PEP 8](https://www.python.org/dev/peps/pep-0008/) coding standards
+   - Use 4 spaces for indentation
+   - Line length limit of 88 characters (Black default)
 
-2. **命名规范**
-   - 类名使用 `PascalCase`
-   - 函数和变量名使用 `snake_case`
-   - 常量使用 `UPPER_CASE`
-   - 私有方法和属性以 `_` 开头
+2. **Naming Conventions**
+   - Class names use `PascalCase`
+   - Function and variable names use `snake_case`
+   - Constants use `UPPER_CASE`
+   - Private methods and attributes start with `_`
 
-3. **文档字符串**
+3. **Docstrings**
    ```python
    def translate_text(self, text: str, target_language: str = 'en') -> str:
        """
-       翻译文本内容
+       Translate text content.
        
        Args:
-           text: 要翻译的文本
-           target_language: 目标语言代码
+           text: Text to be translated
+           target_language: Target language code
            
        Returns:
-           翻译后的文本
+           Translated text
            
        Raises:
-           ValueError: 当输入参数无效时
-           TranslationError: 当翻译失败时
+           ValueError: When input parameters are invalid
+           TranslationError: When translation fails
        """
    ```
 
-4. **类型提示**
-   - 所有公共方法都应该有类型提示
-   - 使用 `typing` 模块进行复杂类型定义
+4. **Type Hints**
+   - All public methods should have type hints
+   - Use `typing` module for complex type definitions
 
-### 代码质量工具
+### Code Quality Tools
 
-在提交代码前，请使用以下工具检查代码质量：
+Before submitting code, please check code quality with these tools:
 
 ```bash
-# 代码格式化
+# Code formatting
 black .
 
-# 代码风格检查
+# Import sorting
+isort .
+
+# Code style check
 flake8 .
 
-# 运行测试
-pytest tests/ -v --cov=.
+# Type checking
+mypy .
+
+# Run tests
+pytest tests/ -v --cov=offitrans
 ```
 
-### 提交规范
+### Commit Guidelines
 
-使用 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
+Use [Conventional Commits](https://www.conventionalcommits.org/) specification:
 
-- `feat:` 新功能
-- `fix:` Bug修复
-- `docs:` 文档更新
-- `style:` 代码格式调整
-- `refactor:` 代码重构
-- `test:` 测试相关
-- `chore:` 构建过程或辅助工具的变动
+- `feat:` New features
+- `fix:` Bug fixes
+- `docs:` Documentation updates
+- `style:` Code formatting
+- `refactor:` Code refactoring
+- `test:` Test-related changes
+- `chore:` Build process or auxiliary tool changes
 
-**示例：**
+**Examples:**
 ```bash
-git commit -m "feat: 添加PDF翻译支持图片保护功能"
-git commit -m "fix: 修复Excel合并单元格翻译格式问题"
-git commit -m "docs: 更新API使用文档"
+git commit -m "feat: add image protection for PDF translation"
+git commit -m "fix: resolve Excel merged cell formatting issue"
+git commit -m "docs: update API usage documentation"
 ```
 
-### Pull Request 流程
+### Pull Request Process
 
-1. **确保代码质量**
-   - 所有测试通过
-   - 代码风格检查通过
-   - 新功能有对应的测试
+1. **Ensure Code Quality**
+   - All tests pass
+   - Code style checks pass
+   - New features have corresponding tests
 
-2. **创建 Pull Request**
-   - 提供清晰的标题和描述
-   - 解释更改的原因和内容
-   - 如果修复了 Issue，请在 PR 中引用
+2. **Create Pull Request**
+   - Provide clear title and description
+   - Explain the reason and content of changes
+   - Reference related issues if fixing bugs
 
-3. **PR 描述模板**
+3. **PR Description Template**
    ```markdown
-   ## 更改类型
-   - [ ] Bug 修复
-   - [ ] 新功能
-   - [ ] 文档更新
-   - [ ] 代码重构
-   - [ ] 性能改进
+   ## Type of Change
+   - [ ] Bug fix
+   - [ ] New feature
+   - [ ] Documentation update
+   - [ ] Code refactoring
+   - [ ] Performance improvement
    
-   ## 更改描述
-   清晰描述本次PR的更改内容
+   ## Description
+   Clear description of the changes in this PR
    
-   ## 相关Issue
-   修复 #123
+   ## Related Issue
+   Fixes #123
    
-   ## 测试
-   - [ ] 新增了单元测试
-   - [ ] 现有测试全部通过
-   - [ ] 手动测试通过
+   ## Testing
+   - [ ] Added unit tests
+   - [ ] All existing tests pass
+   - [ ] Manual testing completed
    
-   ## 检查清单
-   - [ ] 代码遵循项目编码规范
-   - [ ] 已添加必要的文档和注释
-   - [ ] 所有测试通过
+   ## Checklist
+   - [ ] Code follows project coding standards
+   - [ ] Added necessary documentation and comments
+   - [ ] All tests pass
    ```
 
-## 🧪 测试
+## 🧪 Testing
 
-### 运行测试
+### Running Tests
 
 ```bash
-# 运行所有测试
+# Run all tests
 pytest
 
-# 运行特定测试文件
-pytest tests/test_excel_translate.py
+# Run specific test file
+pytest tests/unit/test_processors.py
 
-# 运行测试并生成覆盖率报告
-pytest --cov=. --cov-report=html
+# Run tests with coverage report
+pytest --cov=offitrans --cov-report=html
+
+# Run specific test types
+pytest -m unit          # Unit tests only
+pytest -m integration   # Integration tests only
 ```
 
-### 编写测试
+### Writing Tests
 
-- 每个新功能都应该有对应的测试
-- 测试文件命名为 `test_*.py`
-- 测试方法命名为 `test_*`
+- Each new feature should have corresponding tests
+- Test files should be named `test_*.py`
+- Test methods should be named `test_*`
 
 ```python
 def test_translate_excel_basic():
-    """测试基本Excel翻译功能"""
-    translator = ExcelTranslatorV2()
-    result = translator.translate_text("你好", "en")
-    assert result == "Hello"
+    """Test basic Excel translation functionality."""
+    processor = ExcelProcessor()
+    translator = GoogleTranslator()
+    
+    # Test implementation here
+    assert result is not None
 ```
 
-## 📝 文档贡献
+## 📝 Documentation Contributions
 
-### 文档类型
+### Documentation Types
 
-- **API 文档**：代码中的文档字符串
-- **用户指南**：README.md 和使用示例
-- **开发文档**：CONTRIBUTING.md 和技术说明
+- **API Documentation**: Docstrings in code
+- **User Guide**: README.md and usage examples
+- **Developer Documentation**: CONTRIBUTING.md and technical specifications
 
-### 文档规范
+### Documentation Standards
 
-- 使用简洁明了的语言
-- 提供实际的代码示例
-- 保持中英文文档同步更新
+- Use clear and concise language
+- Provide practical code examples
+- Keep documentation synchronized between languages
 
-## 🌍 国际化贡献
+## 🌍 Internationalization Contributions
 
-我们欢迎多语言支持的贡献：
+We welcome multilingual support contributions:
 
-- 翻译文档到其他语言
-- 添加新的翻译语言支持
-- 改进现有语言的翻译质量
+- Translate documentation to other languages
+- Add support for new translation languages
+- Improve existing language translation quality
 
-## 🎯 项目优先级
+## 🎯 Project Priorities
 
-当前项目的重点关注领域：
+Current focus areas for the project:
 
-1. **稳定性改进** - 修复现有功能的Bug
-2. **性能优化** - 提高翻译速度和内存使用效率
-3. **格式保持** - 改进各种Office格式的样式保持
-4. **新格式支持** - 添加对更多文件格式的支持
-5. **多翻译引擎** - 集成更多翻译服务
+1. **Stability Improvements** - Fix bugs in existing features
+2. **Performance Optimization** - Improve translation speed and memory efficiency
+3. **Format Preservation** - Enhance style preservation for various Office formats
+4. **New Format Support** - Add support for more file formats
+5. **Multiple Translation Engines** - Integrate more translation services
 
-## 📞 获取帮助
+## 📞 Getting Help
 
-如果您有任何问题或需要帮助：
+If you have any questions or need help:
 
-- 📝 创建 [GitHub Issue](https://github.com/your-username/Offitrans/issues)
-- 💬 参与 [Discussions](https://github.com/your-username/Offitrans/discussions)
+- 📝 Create a [GitHub Issue](https://github.com/minglu6/Offitrans/issues)
+- 💬 Join [Discussions](https://github.com/minglu6/Offitrans/discussions)
 
-## 🙏 贡献者名单
+## 🙏 Contributors
 
-感谢所有为 Offitrans 做出贡献的开发者！
+Thanks to all developers who have contributed to Offitrans!
 
-<!-- 这里可以添加贡献者列表，或者使用GitHub的contributors API -->
+<!-- Contributors list can be added here or use GitHub's contributors API -->
 
 ---
 
-再次感谢您对 Offitrans 项目的贡献！🚀
+Thank you again for your contribution to the Offitrans project! 🚀
