@@ -91,14 +91,14 @@ class BatchProcessor:
                 proc_stats = processor.get_stats()
                 result['texts_translated'] = proc_stats.get('total_texts_translated', 0)
                 
-                logger.info(f"✅ Successfully processed: {input_file}")
+                logger.info(f"Successfully processed: {input_file}")
             else:
                 result['error'] = "Processing failed"
-                logger.error(f"❌ Failed to process: {input_file}")
+                logger.error(f"Failed to process: {input_file}")
                 
         except Exception as e:
             result['error'] = str(e)
-            logger.error(f"❌ Error processing {input_file}: {e}")
+            logger.error(f"Error processing {input_file}: {e}")
         
         # Calculate processing time
         result['processing_time'] = time.time() - start_time
@@ -126,12 +126,12 @@ class BatchProcessor:
         Returns:
             List of processing results
         """
-        print(f"🔄 Processing {len(file_pairs)} files sequentially...")
+        print(f"Processing {len(file_pairs)} files sequentially...")
         
         self.stats['start_time'] = time.time()
         
         for i, (input_file, output_file) in enumerate(file_pairs, 1):
-            print(f"\n📄 Processing file {i}/{len(file_pairs)}: {input_file}")
+            print(f"\nProcessing file {i}/{len(file_pairs)}: {input_file}")
             self.process_file(input_file, output_file, target_language)
         
         self.stats['end_time'] = time.time()
@@ -151,7 +151,7 @@ class BatchProcessor:
         Returns:
             List of processing results
         """
-        print(f"⚡ Processing {len(file_pairs)} files in parallel with {max_workers} workers...")
+        print(f"Processing {len(file_pairs)} files in parallel with {max_workers} workers...")
         
         self.stats['start_time'] = time.time()
         
@@ -167,10 +167,10 @@ class BatchProcessor:
                 input_file, output_file = future_to_file[future]
                 try:
                     result = future.result()
-                    status = "✅" if result['success'] else "❌"
+                    status = "OK" if result['success'] else "FAILED"
                     print(f"{status} {input_file} -> {output_file} ({result['processing_time']:.1f}s)")
                 except Exception as e:
-                    print(f"❌ {input_file} -> Exception: {e}")
+                    print(f"FAILED {input_file} -> Exception: {e}")
         
         self.stats['end_time'] = time.time()
         self.stats['total_processing_time'] = self.stats['end_time'] - self.stats['start_time']
@@ -180,7 +180,7 @@ class BatchProcessor:
     def print_summary(self):
         """Print processing summary and statistics"""
         print("\n" + "=" * 60)
-        print("📊 Batch Processing Summary")
+        print("Batch Processing Summary")
         print("=" * 60)
         
         print(f"Total files processed: {self.stats['total_files']}")
@@ -196,14 +196,14 @@ class BatchProcessor:
         # Show failed files
         failed_files = [r for r in self.results if not r['success']]
         if failed_files:
-            print(f"\n❌ Failed files:")
+            print(f"\nFailed files:")
             for result in failed_files:
                 print(f"   - {result['input_file']}: {result['error']}")
         
         # Show successful files
         successful_files = [r for r in self.results if r['success']]
         if successful_files:
-            print(f"\n✅ Successfully processed files:")
+            print(f"\nSuccessfully processed files:")
             for result in successful_files:
                 print(f"   - {result['input_file']} ({result['processing_time']:.1f}s, {result['texts_translated']} texts)")
 
@@ -235,10 +235,10 @@ def create_sample_files():
                 ws[f'A{i}'] = text
             
             wb.save(file_path)
-            print(f"✅ Created sample file: {file_path}")
+            print(f"Created sample file: {file_path}")
         
     except ImportError:
-        print("❌ openpyxl not available, cannot create Excel sample files")
+        print("openpyxl not available, cannot create Excel sample files")
         return []
     
     return [sample_dir / f for f in ["sample1.xlsx", "sample2.xlsx", "sample3.xlsx", "sample4.xlsx"]]
@@ -328,7 +328,7 @@ def demo_mixed_file_types():
         ws['A2'] = "包含中文内容"
         wb.save(excel_file)
         sample_files.append(excel_file)
-        print(f"✅ Created Excel sample: {excel_file}")
+        print(f"Created Excel sample: {excel_file}")
     except ImportError:
         pass
     
@@ -341,7 +341,7 @@ def demo_mixed_file_types():
         doc.add_paragraph("这是中文段落")
         doc.save(word_file)
         sample_files.append(word_file)
-        print(f"✅ Created Word sample: {word_file}")
+        print(f"Created Word sample: {word_file}")
     except ImportError:
         pass
     
@@ -355,12 +355,12 @@ def demo_mixed_file_types():
         slide.shapes.placeholders[1].text = "包含中文内容的幻灯片"
         prs.save(ppt_file)
         sample_files.append(ppt_file)
-        print(f"✅ Created PowerPoint sample: {ppt_file}")
+        print(f"Created PowerPoint sample: {ppt_file}")
     except ImportError:
         pass
     
     if not sample_files:
-        print("❌ No sample files could be created (missing dependencies)")
+        print("No sample files could be created (missing dependencies)")
         return
     
     # Prepare file pairs
@@ -392,7 +392,7 @@ def demo_progress_monitoring():
     if not sample_files:
         return
     
-    print("🔄 Processing with progress monitoring...")
+    print("Processing with progress monitoring...")
     
     config = Config()
     processor = BatchProcessor(config)
@@ -401,14 +401,14 @@ def demo_progress_monitoring():
     for i, input_file in enumerate(sample_files, 1):
         output_file = input_file.parent / f"{input_file.stem}_monitored{input_file.suffix}"
         
-        print(f"\n📊 Progress: {i}/{len(sample_files)} ({(i/len(sample_files)*100):.1f}%)")
-        print(f"📄 Current file: {input_file.name}")
+        print(f"\nProgress: {i}/{len(sample_files)} ({(i/len(sample_files)*100):.1f}%)")
+        print(f"Current file: {input_file.name}")
         
         start_time = time.time()
         result = processor.process_file(str(input_file), str(output_file), "en")
         end_time = time.time()
         
-        print(f"   Status: {'✅ Success' if result['success'] else '❌ Failed'}")
+        print(f"   Status: {'Success' if result['success'] else 'Failed'}")
         print(f"   Time: {end_time - start_time:.1f}s")
         if result['texts_translated']:
             print(f"   Texts translated: {result['texts_translated']}")
@@ -420,7 +420,7 @@ def main():
     """
     Main function to run all batch processing examples
     """
-    print("🚀 Offitrans Batch Processing Examples")
+    print("Offitrans Batch Processing Examples")
     print("This example demonstrates efficient batch processing capabilities")
     
     # Run all demos
@@ -430,15 +430,15 @@ def main():
     demo_progress_monitoring()
     
     print("\n" + "=" * 60)
-    print("✨ Batch processing examples completed!")
+    print("Batch processing examples completed!")
     print("=" * 60)
-    print("⚡ Performance Tips:")
+    print("Performance Tips:")
     print("   1. Use parallel processing for multiple independent files")
     print("   2. Reduce max_workers per processor when using parallel file processing")
     print("   3. Enable caching to avoid re-translating the same content")
     print("   4. Monitor memory usage with large files or many parallel workers")
     print("   5. Consider file size and complexity when setting max_workers")
-    print("\n📁 Check the generated files in examples/sample_files/")
+    print("\nCheck the generated files in examples/sample_files/")
 
 
 if __name__ == "__main__":

@@ -71,12 +71,12 @@ def advanced_excel_with_images():
     input_file = "examples/sample_files/excel_with_images.xlsx"
     output_file = "examples/sample_files/excel_with_images_translated.xlsx"
     
-    print(f"📊 Processing Excel file with image protection...")
+    print(f"Processing Excel file with image protection...")
     print(f"   Input: {input_file}")
     print(f"   Output: {output_file}")
     
     if not os.path.exists(input_file):
-        print(f"⚠️  Sample file not found: {input_file}")
+        print(f"Warning: Sample file not found: {input_file}")
         print("   Create an Excel file with Chinese text and images to test this feature")
         create_sample_excel_with_formatting(input_file)
         return
@@ -86,11 +86,11 @@ def advanced_excel_with_images():
         success = processor.process_file(input_file, output_file, "en")
         
         if success:
-            print("✅ Translation completed with image protection!")
+            print("Translation completed with image protection!")
             
             # Show detailed statistics
             stats = processor.get_stats()
-            print(f"\n📈 Processing Statistics:")
+            print(f"\nProcessing Statistics:")
             print(f"   Files processed: {stats['total_files_processed']}")
             print(f"   Successful files: {stats['successful_files']}")
             print(f"   Failed files: {stats['failed_files']}")
@@ -99,22 +99,22 @@ def advanced_excel_with_images():
             
             # Show translator statistics
             translator_stats = translator.get_stats()
-            print(f"\n🔤 Translator Statistics:")
+            print(f"\nTranslator Statistics:")
             print(f"   Total translations: {translator_stats['total_translations']}")
             print(f"   Successful translations: {translator_stats['successful_translations']}")
             print(f"   Failed translations: {translator_stats['failed_translations']}")
             
         else:
-            print("❌ Translation failed")
+            print("Translation failed")
             
     except ExcelProcessorError as e:
-        print(f"❌ Excel processing error: {e}")
+        print(f"Excel processing error: {e}")
         if e.file_path:
             print(f"   File: {e.file_path}")
         if e.details:
             print(f"   Details: {e.details}")
     except Exception as e:
-        print(f"❌ Unexpected error: {e}")
+        print(f"Unexpected error: {e}")
 
 
 def batch_excel_translation():
@@ -142,44 +142,44 @@ def batch_excel_translation():
     successful_files = []
     failed_files = []
     
-    print(f"📊 Processing {len(excel_files)} Excel files...")
+    print(f"Processing {len(excel_files)} Excel files...")
     
     for i, input_file in enumerate(excel_files, 1):
         output_file = input_file.replace('.xlsx', '_translated.xlsx')
         
-        print(f"\n📄 Processing file {i}/{len(excel_files)}: {input_file}")
+        print(f"\nProcessing file {i}/{len(excel_files)}: {input_file}")
         
         if not os.path.exists(input_file):
-            print(f"   ⚠️  File not found, creating sample...")
+            print(f"   Warning: File not found, creating sample...")
             create_sample_excel_with_formatting(input_file)
         
         try:
             success = processor.process_file(input_file, output_file, "en")
             
             if success:
-                print(f"   ✅ Success: {output_file}")
+                print(f"   Success: {output_file}")
                 successful_files.append(output_file)
             else:
-                print(f"   ❌ Failed")
+                print(f"   Failed")
                 failed_files.append(input_file)
                 
         except Exception as e:
-            print(f"   ❌ Error: {e}")
+            print(f"   Error: {e}")
             failed_files.append(input_file)
     
     # Summary
-    print(f"\n📊 Batch Processing Summary:")
+    print(f"\nBatch Processing Summary:")
     print(f"   Total files: {len(excel_files)}")
     print(f"   Successful: {len(successful_files)}")
     print(f"   Failed: {len(failed_files)}")
     
     if successful_files:
-        print(f"\n✅ Successfully translated files:")
+        print(f"\nSuccessfully translated files:")
         for file in successful_files:
             print(f"   - {file}")
     
     if failed_files:
-        print(f"\n❌ Failed files:")
+        print(f"\nFailed files:")
         for file in failed_files:
             print(f"   - {file}")
 
@@ -202,7 +202,7 @@ def excel_translation_with_custom_formatting():
         create_sample_excel_with_formatting(base_input)
     
     for adjustment in font_adjustments:
-        print(f"\n🔧 Testing font size adjustment: {adjustment}")
+        print(f"\nTesting font size adjustment: {adjustment}")
         
         # Create config with specific font adjustment
         config = Config()
@@ -216,12 +216,12 @@ def excel_translation_with_custom_formatting():
             success = processor.process_file(base_input, output_file, "en")
             
             if success:
-                print(f"   ✅ Created: {output_file}")
+                print(f"   Created: {output_file}")
             else:
-                print(f"   ❌ Failed to create: {output_file}")
+                print(f"   Failed to create: {output_file}")
                 
         except Exception as e:
-            print(f"   ❌ Error: {e}")
+            print(f"   Error: {e}")
 
 
 def excel_translation_different_languages():
@@ -250,7 +250,7 @@ def excel_translation_different_languages():
     config.translator.max_workers = 1  # Conservative for multiple languages
     
     for lang_code, lang_name in languages.items():
-        print(f"\n🌍 Translating to {lang_name} ({lang_code})...")
+        print(f"\nTranslating to {lang_name} ({lang_code})...")
         
         # Create language-specific translator
         translator = GoogleTranslator(
@@ -268,12 +268,12 @@ def excel_translation_different_languages():
             success = processor.process_file(input_file, output_file, lang_code)
             
             if success:
-                print(f"   ✅ {lang_name} translation completed: {output_file}")
+                print(f"   {lang_name} translation completed: {output_file}")
             else:
-                print(f"   ❌ {lang_name} translation failed")
+                print(f"   {lang_name} translation failed")
                 
         except Exception as e:
-            print(f"   ❌ {lang_name} translation error: {e}")
+            print(f"   {lang_name} translation error: {e}")
 
 
 def create_sample_excel_with_formatting(file_path: str):
@@ -327,19 +327,19 @@ def create_sample_excel_with_formatting(file_path: str):
         ws.column_dimensions['B'].width = 50
         
         wb.save(file_path)
-        print(f"✅ Created sample Excel file: {file_path}")
+        print(f"Created sample Excel file: {file_path}")
         
     except ImportError:
-        print("❌ openpyxl not available, cannot create sample Excel file")
+        print("openpyxl not available, cannot create sample Excel file")
     except Exception as e:
-        print(f"❌ Error creating sample Excel file: {e}")
+        print(f"Error creating sample Excel file: {e}")
 
 
 def main():
     """
     Main function to run all advanced examples
     """
-    print("🚀 Offitrans Advanced Excel Translation Examples")
+    print("Offitrans Advanced Excel Translation Examples")
     print("This example demonstrates advanced Excel translation features")
     
     # Ensure sample files directory exists
@@ -352,15 +352,15 @@ def main():
     excel_translation_different_languages()
     
     print("\n" + "=" * 60)
-    print("✨ Advanced examples completed!")
+    print("Advanced examples completed!")
     print("=" * 60)
-    print("💡 Advanced Tips:")
+    print("Advanced Tips:")
     print("   1. Use image_protection=True for Excel files with images")
     print("   2. Adjust font_size_adjustment for better text fit")
     print("   3. Enable caching for better performance with repeated translations")
     print("   4. Use custom configurations for different use cases")
     print("   5. Monitor statistics to track translation performance")
-    print("\n📚 Check the generated files in examples/sample_files/")
+    print("\nCheck the generated files in examples/sample_files/")
 
 
 if __name__ == "__main__":

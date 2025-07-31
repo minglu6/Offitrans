@@ -43,13 +43,13 @@ def basic_excel_translation():
     
     # Check if input file exists
     if not os.path.exists(input_file):
-        print(f"⚠️  Sample file not found: {input_file}")
-        print("   Create a sample Excel file with some Chinese text to test")
+        print(f"Warning: Sample file not found: {input_file}")
+        print("Create a sample Excel file with some Chinese text to test")
         return
     
     try:
         # Translate the Excel file
-        print(f"📊 Translating Excel file: {input_file}")
+        print(f"Translating Excel file: {input_file}")
         success = processor.process_file(
             input_file, 
             output_file, 
@@ -57,20 +57,20 @@ def basic_excel_translation():
         )
         
         if success:
-            print(f"✅ Translation completed successfully!")
-            print(f"📄 Output file: {output_file}")
+            print(f"Translation completed successfully!")
+            print(f"Output file: {output_file}")
             
             # Show statistics
             stats = processor.get_stats()
-            print(f"📈 Statistics:")
-            print(f"   - Files processed: {stats['total_files_processed']}")
-            print(f"   - Texts translated: {stats['total_texts_translated']}")
-            print(f"   - Characters translated: {stats['total_chars_translated']}")
+            print(f"Statistics:")
+            print(f"- Files processed: {stats['total_files_processed']}")
+            print(f"- Texts translated: {stats['total_texts_translated']}")
+            print(f"- Characters translated: {stats['total_chars_translated']}")
         else:
-            print("❌ Translation failed")
+            print("Translation failed")
             
     except Exception as e:
-        print(f"❌ Error during translation: {e}")
+        print(f"Error during translation: {e}")
 
 
 def basic_translator_usage():
@@ -90,18 +90,18 @@ def basic_translator_usage():
     )
     
     # Single text translation
-    print("🔤 Single Text Translation:")
+    print("Single Text Translation:")
     text = "你好，世界！这是一个测试。"
-    print(f"   Original: {text}")
+    print(f"Original: {text}")
     
     try:
         translated = translator.translate_text(text)
-        print(f"   Translated: {translated}")
+        print(f"Translated: {translated}")
     except Exception as e:
-        print(f"   Translation failed: {e}")
+        print(f"Translation failed: {e}")
     
     # Batch text translation
-    print("\n🔤 Batch Text Translation:")
+    print("\nBatch Text Translation:")
     texts = [
         "欢迎使用Offitrans",
         "这是一个强大的翻译工具",
@@ -110,18 +110,18 @@ def basic_translator_usage():
         "test@email.com"  # This should not be translated
     ]
     
-    print("   Original texts:")
+    print("Original texts:")
     for i, text in enumerate(texts, 1):
-        print(f"   {i}. {text}")
+        print(f"{i}. {text}")
     
     try:
         translated_texts = translator.translate_text_batch(texts)
-        print("\n   Translated texts:")
+        print("\nTranslated texts:")
         for i, (original, translated) in enumerate(zip(texts, translated_texts), 1):
             status = "→" if translated != original else "↷ (skipped)"
-            print(f"   {i}. {original} {status} {translated}")
+            print(f"{i}. {original} {status} {translated}")
     except Exception as e:
-        print(f"   Batch translation failed: {e}")
+        print(f"Batch translation failed: {e}")
 
 
 def processor_factory_example():
@@ -144,7 +144,7 @@ def processor_factory_example():
         try:
             # Get appropriate processor based on file extension
             processor = get_processor_by_extension(file_path)
-            print(f"📁 {file_path} → {processor.__class__.__name__}")
+            print(f"File {file_path} → {processor.__class__.__name__}")
             
             # Show what file types this processor supports
             extensions = []
@@ -152,12 +152,12 @@ def processor_factory_example():
                 if processor.supports_file_type(f"test{ext}"):
                     extensions.append(ext)
             
-            print(f"   Supports: {', '.join(extensions)}")
+            print(f"Supports: {', '.join(extensions)}")
             
         except ValueError as e:
-            print(f"❌ {file_path} → {e}")
+            print(f"{file_path} → {e}")
         except Exception as e:
-            print(f"❌ {file_path} → Error: {e}")
+            print(f"{file_path} → Error: {e}")
 
 
 def translation_with_different_languages():
@@ -182,8 +182,8 @@ def translation_with_different_languages():
         "es": "Spanish"
     }
     
-    print(f"🔤 Original text: {chinese_text}")
-    print("\n🌍 Translations to different languages:")
+    print(f"Original text: {chinese_text}")
+    print("\nTranslations to different languages:")
     
     for lang_code, lang_name in target_languages.items():
         try:
@@ -195,17 +195,17 @@ def translation_with_different_languages():
             )
             
             translated = translator.translate_text(chinese_text)
-            print(f"   {lang_name} ({lang_code}): {translated}")
+            print(f"{lang_name} ({lang_code}): {translated}")
             
         except Exception as e:
-            print(f"   {lang_name} ({lang_code}): ❌ Failed - {e}")
+            print(f"{lang_name} ({lang_code}): Failed - {e}")
 
 
 def main():
     """
     Main function to run all examples
     """
-    print("🚀 Offitrans Basic Usage Examples")
+    print("Offitrans Basic Usage Examples")
     print("This example demonstrates how to use the Offitrans library")
     
     # Run all examples
@@ -215,17 +215,17 @@ def main():
     basic_excel_translation()
     
     print("\n" + "=" * 60)
-    print("✨ Examples completed!")
+    print("Examples completed!")
     print("=" * 60)
-    print("💡 Tips:")
-    print("   1. Create sample files in examples/sample_files/ to test file translation")
-    print("   2. Adjust the file paths in the examples to match your files")
-    print("   3. Check the logs for detailed information about the translation process")
-    print("   4. Use Config class to customize translator and processor behavior")
-    print("\n📚 For more examples, check:")
-    print("   - examples/advanced_excel.py")
-    print("   - examples/batch_processing.py")
-    print("   - README.md and README_EN.md")
+    print("Tips:")
+    print("1. Create sample files in examples/sample_files/ to test file translation")
+    print("2. Adjust the file paths in the examples to match your files")
+    print("3. Check the logs for detailed information about the translation process")
+    print("4. Use Config class to customize translator and processor behavior")
+    print("\nFor more examples, check:")
+    print("- examples/advanced_excel.py")
+    print("- examples/batch_processing.py")
+    print("- README.md and README_EN.md")
 
 
 if __name__ == "__main__":

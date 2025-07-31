@@ -41,16 +41,16 @@ def example_excel_translation():
         )
         
         if success:
-            print(f"✅ 翻译成功！输出文件: {output_file}")
+            print(f"翻译成功！输出文件: {output_file}")
             
             # 智能调整列宽
             print("调整列宽...")
             translator.smart_adjust_column_width(output_file)
-            print("✅ 列宽调整完成！")
+            print("列宽调整完成！")
         else:
-            print("❌ 翻译失败")
+            print("翻译失败")
     else:
-        print(f"⚠️ 输入文件不存在: {input_file}")
+        print(f"警告: 输入文件不存在: {input_file}")
         print("请准备一个Excel文件进行测试")
 
 def example_text_translation():
@@ -105,7 +105,7 @@ def example_supported_languages():
 
 def main():
     """主函数"""
-    print("🚀 Offitrans 使用示例")
+    print("Offitrans 使用示例")
     print("这个示例展示了如何使用 Offitrans 进行文件翻译")
     
     try:
@@ -119,7 +119,7 @@ def main():
         example_supported_languages()
         
         print("\n" + "=" * 50)
-        print("✨ 示例运行完成！")
+        print("示例运行完成！")
         print("=" * 50)
         print("更多功能请参考:")
         print("- README.md: 详细的使用文档")
@@ -127,12 +127,12 @@ def main():
         print("- GitHub: https://github.com/your-username/Offitrans")
         
     except ImportError as e:
-        print(f"❌ 导入错误: {e}")
+        print(f"导入错误: {e}")
         print("请确保已正确安装所有依赖:")
         print("pip install -r requirements.txt")
         
     except Exception as e:
-        print(f"❌ 运行错误: {e}")
+        print(f"运行错误: {e}")
         print("请检查配置和输入文件")
 
 if __name__ == "__main__":
