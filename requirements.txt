@@ -1,0 +1,26 @@
+# Core translation library
+requests>=2.28.0
+
+# Excel file processing
+openpyxl>=3.0.10
+
+# Word document processing
+python-docx>=0.8.11
+
+# PDF file processing
+PyPDF2>=3.0.1
+
+# PowerPoint processing
+python-pptx>=0.6.21
+
+# Image processing (optional but recommended)
+Pillow>=9.0.0
+
+# Additional utilities
+lxml>=4.9.0
+
+# Development dependencies (optional)
+pytest>=7.0.0
+pytest-cov>=4.0.0
+black>=22.0.0
+flake8>=5.0.0
