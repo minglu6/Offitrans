@@ -1,0 +1,200 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "offitrans"
+version = "0.2.0"
+description = "A powerful library for translating office documents (Excel, Word, PDF, PowerPoint)"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "minglu6", email = "minglu6@example.com"},
+]
+maintainers = [
+    {name = "minglu6", email = "minglu6@example.com"},
+]
+keywords = [
+    "translation",
+    "office",
+    "excel", 
+    "word",
+    "pdf",
+    "powerpoint",
+    "google-translate",
+    "document-processing"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Office/Business",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Linguistic"
+]
+requires-python = ">=3.7"
+dependencies = [
+    "requests>=2.28.0"
+]
+
+[project.optional-dependencies]
+excel = ["openpyxl>=3.0.10"]
+word = ["python-docx>=0.8.11"]
+pdf = ["PyPDF2>=3.0.1"]
+powerpoint = ["python-pptx>=0.6.21"]
+image = ["Pillow>=9.0.0"]
+xml = ["lxml>=4.9.0"]
+full = [
+    "openpyxl>=3.0.10",
+    "python-docx>=0.8.11",
+    "PyPDF2>=3.0.1",
+    "python-pptx>=0.6.21",
+    "Pillow>=9.0.0",
+    "lxml>=4.9.0"
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
+    "black>=22.0.0",
+    "flake8>=5.0.0",
+    "mypy>=1.0.0",
+    "isort>=5.11.0",
+    "pre-commit>=2.20.0",
+    "twine>=4.0.0",
+    "build>=0.8.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/minglu6/Offitrans"
+Documentation = "https://github.com/minglu6/Offitrans/blob/main/README.md"
+Repository = "https://github.com/minglu6/Offitrans.git"
+"Bug Reports" = "https://github.com/minglu6/Offitrans/issues"
+Changelog = "https://github.com/minglu6/Offitrans/blob/main/CHANGELOG.md"
+
+[project.scripts]
+offitrans = "offitrans.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["offitrans*"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+offitrans = ["py.typed"]
+
+[tool.black]
+line-length = 88
+target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["offitrans"]
+
+[tool.mypy]
+python_version = "3.7"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "openpyxl.*",
+    "docx.*",
+    "PyPDF2.*",
+    "pptx.*",
+    "PIL.*"
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=offitrans",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml"
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "requires_excel: marks tests that require openpyxl",
+    "requires_word: marks tests that require python-docx",
+    "requires_pdf: marks tests that require PyPDF2",
+    "requires_powerpoint: marks tests that require python-pptx",
+    "requires_network: marks tests that require network access"
+]
+
+[tool.coverage.run]
+source = ["offitrans"]
+branch = true
+omit = [
+    "tests/*",
+    "examples/*",
+    "*/tests/*",
+    "*/test_*"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:"
+]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+    ".venv",
+    ".tox"
+]

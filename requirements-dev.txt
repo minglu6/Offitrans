@@ -1,0 +1,42 @@
+# Development dependencies for Offitrans
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+pytest-xdist>=3.0.0  # For parallel test execution
+
+# Code formatting and linting
+black>=22.0.0
+flake8>=5.0.0
+isort>=5.11.0
+mypy>=1.0.0
+
+# Pre-commit hooks
+pre-commit>=2.20.0
+
+# Documentation
+sphinx>=5.0.0
+sphinx-rtd-theme>=1.0.0
+myst-parser>=0.18.0
+
+# Build and packaging
+build>=0.8.0
+twine>=4.0.0
+wheel>=0.37.0
+
+# Optional dependencies for full testing
+openpyxl>=3.0.10
+python-docx>=0.8.11
+PyPDF2>=3.0.1
+python-pptx>=0.6.21
+Pillow>=9.0.0
+lxml>=4.9.0
+
+# Performance profiling (optional)
+memory_profiler>=0.60.0
+line_profiler>=4.0.0
+
+# Security scanning (optional)
+bandit>=1.7.0
+safety>=2.0.0
