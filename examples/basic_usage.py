@@ -91,7 +91,7 @@ def basic_translator_usage():
     
     # Single text translation
     print("Single Text Translation:")
-    text = "你好，世界！这是一个测试。"
+    text = "Hello, world! This is a test."
     print(f"Original: {text}")
     
     try:
@@ -103,9 +103,9 @@ def basic_translator_usage():
     # Batch text translation
     print("\nBatch Text Translation:")
     texts = [
-        "欢迎使用Offitrans",
-        "这是一个强大的翻译工具",
-        "支持多种Office文件格式",
+        "Welcome to Offitrans",
+        "This is a powerful translation tool",
+        "Supports multiple Office file formats",
         "123",  # This should not be translated
         "test@email.com"  # This should not be translated
     ]
@@ -169,7 +169,7 @@ def translation_with_different_languages():
     print("=" * 60)
     
     # Sample text in Chinese
-    chinese_text = "你好，世界！欢迎使用Offitrans翻译工具。"
+    chinese_text = "Hello, world! Welcome to Offitrans translation tool."
     
     # Different target languages
     target_languages = {

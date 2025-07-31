@@ -38,7 +38,7 @@ def sample_text_data():
     """
     return [
         "Hello, world!",
-        "你好，世界！",
+        "Hello world!",  # Changed from Chinese to English for consistency
         "สวัสดีชาวโลก!",
         "Bonjour le monde!",
         "Hola mundo!",
@@ -141,7 +141,7 @@ class TestFileGenerator:
             
             test_texts = texts or [
                 "Hello World",
-                "你好世界",
+                "Hello World",
                 "Test Data",
                 "123",
                 "sample@email.com"
@@ -166,7 +166,7 @@ class TestFileGenerator:
             
             test_texts = texts or [
                 "This is a test document",
-                "这是一个测试文档",
+                "This is a test document",
                 "Sample paragraph with formatting"
             ]
             
@@ -189,7 +189,7 @@ class TestFileGenerator:
             
             test_texts = texts or [
                 "Test Slide Title",
-                "这是测试幻灯片",
+                "Test Slide Content",
                 "Sample content"
             ]
             

@@ -290,17 +290,17 @@ def create_sample_excel_with_formatting(file_path: str):
         
         wb = Workbook()
         ws = wb.active
-        ws.title = "测试工作表"
+        ws.title = "Test Worksheet"
         
         # Sample data with different formatting
         data = [
-            ("标题", "这是一个标题行"),
-            ("普通文本", "这是普通的中文文本"),
-            ("重要信息", "这是加粗的重要信息"),
-            ("数字", "123"),  # Should not be translated
-            ("邮箱", "test@example.com"),  # Should not be translated
-            ("混合内容", "包含中文和English的混合文本"),
-            ("长文本", "这是一个很长的文本内容，用于测试自动换行和列宽调整功能。它包含了多个句子和各种中文字符。")
+            ("Title", "This is a title row"),
+            ("Normal Text", "This is normal Chinese text"),
+            ("Important Info", "This is bold important info"),
+            ("Number", "123"),  # Should not be translated
+            ("Email", "test@example.com"),  # Should not be translated
+            ("Mixed Content", "Mixed text with Chinese and English"),
+            ("Long Text", "This is a very long text content used to test automatic line wrapping and column width adjustment functionality. It contains multiple sentences and various Chinese characters.")
         ]
         
         for i, (category, content) in enumerate(data, 1):

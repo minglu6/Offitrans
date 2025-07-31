@@ -1,6 +1,0 @@
-{
-  "env": {
-    "ANTHROPIC_BASE_URL": "https://open.bigmodel.cn/api/anthropic",
-    "ANTHROPIC_AUTH_TOKEN": "1ed6e9d563004fcaa6b3bee3a81a5dc9.yri5bY7lmLhrw5CN"
-  }
-}

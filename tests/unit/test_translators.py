@@ -39,12 +39,12 @@ class TestGoogleTranslator:
         """Test successful translation with free API"""
         # Mock successful response
         mock_response = Mock()
-        mock_response.json.return_value = [[["Hello", "你好", None, None, None, None, None, None, []]]]
+        mock_response.json.return_value = [[["Hello", "Hola", None, None, None, None, None, None, []]]]
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
         translator = GoogleTranslator(use_free_api=True)
-        result = translator._translate_free_api("你好")
+        result = translator._translate_free_api("Hola")
         
         assert result == "Hello"
         mock_get.assert_called_once()
@@ -58,7 +58,7 @@ class TestGoogleTranslator:
         translator = GoogleTranslator(use_free_api=True)
         
         with pytest.raises(TranslationError):
-            translator._translate_free_api("你好")
+            translator._translate_free_api("Hola")
     
     @patch('requests.post')
     def test_translate_paid_api_success(self, mock_post):
@@ -76,7 +76,7 @@ class TestGoogleTranslator:
         mock_post.return_value = mock_response
         
         translator = GoogleTranslator(api_key="test_key", use_free_api=False)
-        result = translator._translate_paid_api("你好")
+        result = translator._translate_paid_api("Hola")
         
         assert result == "Hello"
         mock_post.assert_called_once()
@@ -86,7 +86,7 @@ class TestGoogleTranslator:
         translator = GoogleTranslator(use_free_api=False)
         
         with pytest.raises(TranslationError):
-            translator._translate_paid_api("你好")
+            translator._translate_paid_api("Hola")
     
     def test_permanent_error_detection(self):
         """Test permanent error detection"""
@@ -108,14 +108,14 @@ class TestGoogleTranslator:
         """Test language detection with free API"""
         # Mock response with language detection
         mock_response = Mock()
-        mock_response.json.return_value = [None, None, "zh"]
+        mock_response.json.return_value = [None, None, "es"]
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
         translator = GoogleTranslator(use_free_api=True)
-        result = translator.detect_language("你好")
+        result = translator.detect_language("Hola")
         
-        assert result == "zh"
+        assert result == "es"
     
     def test_get_supported_languages(self):
         """Test getting supported languages"""
@@ -125,7 +125,7 @@ class TestGoogleTranslator:
         assert "en" in languages
         assert "zh" in languages
         assert "th" in languages
-        assert languages["en"] == "中文 (Chinese)" or "English" in languages["en"]
+        assert languages["en"] == "English" or "English" in languages["en"]
     
     def test_validate_api_key_free(self):
         """Test API key validation for free API"""

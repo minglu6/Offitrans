@@ -20,7 +20,7 @@ class TestBaseProcessor:
         def extract_text(self, file_path: str):
             return [
                 {"text": "Hello world", "type": "test"},
-                {"text": "你好世界", "type": "test"}
+                {"text": "Hello world", "type": "test"}
             ]
         
         def translate_and_save(self, file_path: str, output_path: str, target_language: str = "en"):
@@ -79,7 +79,7 @@ class TestBaseProcessor:
         
         texts = [
             "Hello world",
-            "你好世界", 
+            "Hello world", 
             "123",  # Should be filtered out
             "test@email.com",  # Should be filtered out
             "Hello world"  # Duplicate
@@ -101,7 +101,7 @@ class TestBaseProcessor:
         mock_translator.translate_text_batch.return_value = ["Hello", "World"]
         processor.translator = mock_translator
         
-        texts = ["你好", "世界"]
+        texts = ["Hello", "World"]
         result = processor.translate_texts(texts, "en")
         
         assert result == ["Hello", "World"]
@@ -111,10 +111,10 @@ class TestBaseProcessor:
         """Test translation post-processing"""
         processor = self.MockProcessor()
         
-        original_texts = ["Hello", "世界", "123"]
-        translated_texts = ["你好", "World"]
+        original_texts = ["Hello", "World", "123"]
+        translated_texts = ["Hello", "World"]
         metadata = {
-            'text_to_indices': {"Hello": [0], "世界": [1]},
+            'text_to_indices': {"Hello": [0], "World": [1]},
             'non_translatable_texts': ["123"]
         }
         

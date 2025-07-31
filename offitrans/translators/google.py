@@ -23,7 +23,7 @@ def get_supported_languages() -> Dict[str, str]:
         Dictionary mapping language codes to language names
     """
     return {
-        'zh': '中文 (Chinese)',
+        'zh': 'Chinese (中文)',
         'en': 'English',
         'th': 'ไทย (Thai)',
         'ja': '日本語 (Japanese)',

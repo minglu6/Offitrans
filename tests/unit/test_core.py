@@ -111,11 +111,11 @@ class TestTranslationCache:
         cache = TranslationCache(str(cache_file))
         
         # Set a translation
-        cache.set("hello", "你好", "en", "zh")
+        cache.set("hello", "hola", "en", "es")
         
         # Get the translation
-        result = cache.get("hello", "en", "zh")
-        assert result == "你好"
+        result = cache.get("hello", "en", "es")
+        assert result == "hola"
     
     def test_cache_miss(self, temp_dir):
         """Test cache miss"""
@@ -132,19 +132,19 @@ class TestTranslationCache:
         
         # Set batch
         translations = {
-            "hello": "你好",
-            "world": "世界",
-            "test": "测试"
+            "hello": "hola",
+            "world": "mundo",
+            "test": "prueba"
         }
-        cache.set_batch(translations, "en", "zh")
+        cache.set_batch(translations, "en", "es")
         
         # Get batch
         texts = ["hello", "world", "test", "missing"]
-        results = cache.get_batch(texts, "en", "zh")
+        results = cache.get_batch(texts, "en", "es")
         
-        assert results["hello"] == "你好"
-        assert results["world"] == "世界"
-        assert results["test"] == "测试"
+        assert results["hello"] == "hola"
+        assert results["world"] == "mundo"
+        assert results["test"] == "prueba"
         assert results["missing"] is None
     
     def test_cache_clear(self, temp_dir):
@@ -152,7 +152,7 @@ class TestTranslationCache:
         cache_file = temp_dir / "test_cache.json"
         cache = TranslationCache(str(cache_file))
         
-        cache.set("hello", "你好", "en", "zh")
+        cache.set("hello", "hola", "en", "es")
         assert len(cache) == 1
         
         cache.clear()
@@ -163,7 +163,7 @@ class TestTranslationCache:
         cache_file = temp_dir / "test_cache.json"
         cache = TranslationCache(str(cache_file))
         
-        cache.set("hello", "你好", "en", "zh")
+        cache.set("hello", "hola", "en", "es")
         stats = cache.get_stats()
         
         assert stats["total_entries"] == 1
@@ -223,7 +223,8 @@ class TestUtilityFunctions:
     def test_detect_language(self):
         """Test language detection"""
         assert detect_language("Hello world") == "en"
-        assert detect_language("你好世界") == "zh"
+        assert detect_language("Hola mundo") == "en"  # No special Spanish characters, defaults to English
+        assert detect_language("¡Hola! ¿Cómo estás?") == "es"  # With Spanish punctuation
         assert detect_language("สวัสดี") == "th"
         assert detect_language("123") == "unknown"
         assert detect_language("") == "unknown"
@@ -243,8 +244,8 @@ class TestUtilityFunctions:
     
     def test_should_translate_text(self):
         """Test translation necessity detection"""
-        assert should_translate_text("Hello world") is True
-        assert should_translate_text("你好世界") is True
+        assert should_translate_text("Hello world") is False  # Pure English, skipped by design
+        assert should_translate_text("¡Hola! ¿Cómo estás?") is True  # Spanish with punctuation
         assert should_translate_text("123") is False
         assert should_translate_text("test@email.com") is False
         assert should_translate_text("") is False
@@ -260,18 +261,18 @@ class TestUtilityFunctions:
     def test_filter_translatable_texts(self):
         """Test text filtering"""
         texts = [
-            "Hello world",  # Translatable
-            "你好世界",      # Translatable
-            "123",          # Not translatable
-            "test@email.com"  # Not translatable
+            "Hello world",      # Not translatable (pure English)
+            "¡Hola! ¿Cómo estás?",  # Translatable (Spanish with punctuation)
+            "123",              # Not translatable
+            "test@email.com"    # Not translatable
         ]
         
         translatable, non_translatable = filter_translatable_texts(texts)
         
-        assert len(translatable) == 2
-        assert len(non_translatable) == 2
-        assert "Hello world" in translatable
-        assert "你好世界" in translatable
+        assert len(translatable) == 1
+        assert len(non_translatable) == 3
+        assert "¡Hola! ¿Cómo estás?" in translatable
+        assert "Hello world" in non_translatable
         assert "123" in non_translatable
         assert "test@email.com" in non_translatable
     

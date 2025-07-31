@@ -218,10 +218,10 @@ def create_sample_files():
         from openpyxl import Workbook
         
         sample_data = [
-            ("sample1.xlsx", ["你好世界", "这是第一个测试文件", "包含中文内容"]),
-            ("sample2.xlsx", ["欢迎使用", "批量处理功能", "非常方便"]),
-            ("sample3.xlsx", ["测试文件", "包含多种内容", "数字123", "邮箱test@example.com"]),
-            ("sample4.xlsx", ["最后一个", "测试文件", "批量处理完成"])
+            ("sample1.xlsx", ["Hello world", "This is the first test file", "Contains Chinese content"]),
+            ("sample2.xlsx", ["Welcome", "Batch processing function", "Very convenient"]),
+            ("sample3.xlsx", ["Test file", "Contains various content", "Number 123", "Email test@example.com"]),
+            ("sample4.xlsx", ["Last one", "Test file", "Batch processing completed"])
         ]
         
         for filename, texts in sample_data:
@@ -229,7 +229,7 @@ def create_sample_files():
             
             wb = Workbook()
             ws = wb.active
-            ws.title = "测试数据"
+            ws.title = "Test Data"
             
             for i, text in enumerate(texts, 1):
                 ws[f'A{i}'] = text
@@ -324,8 +324,8 @@ def demo_mixed_file_types():
         excel_file = sample_dir / "mixed_excel.xlsx"
         wb = Workbook()
         ws = wb.active
-        ws['A1'] = "Excel文件测试"
-        ws['A2'] = "包含中文内容"
+        ws['A1'] = "Excel File Test"
+        ws['A2'] = "Contains Chinese content"
         wb.save(excel_file)
         sample_files.append(excel_file)
         print(f"Created Excel sample: {excel_file}")
@@ -337,8 +337,8 @@ def demo_mixed_file_types():
         from docx import Document
         word_file = sample_dir / "mixed_word.docx"
         doc = Document()
-        doc.add_paragraph("Word文档测试")
-        doc.add_paragraph("这是中文段落")
+        doc.add_paragraph("Word Document Test")
+        doc.add_paragraph("This is a Chinese paragraph")
         doc.save(word_file)
         sample_files.append(word_file)
         print(f"Created Word sample: {word_file}")
@@ -351,8 +351,8 @@ def demo_mixed_file_types():
         ppt_file = sample_dir / "mixed_ppt.pptx"
         prs = Presentation()
         slide = prs.slides.add_slide(prs.slide_layouts[1])
-        slide.shapes.title.text = "PPT演示文稿"
-        slide.shapes.placeholders[1].text = "包含中文内容的幻灯片"
+        slide.shapes.title.text = "PPT Presentation"
+        slide.shapes.placeholders[1].text = "Slide with Chinese content"
         prs.save(ppt_file)
         sample_files.append(ppt_file)
         print(f"Created PowerPoint sample: {ppt_file}")

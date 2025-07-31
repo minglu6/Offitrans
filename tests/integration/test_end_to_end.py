@@ -23,7 +23,7 @@ class TestEndToEndTranslation:
         input_file = temp_dir / "test_input.xlsx"
         output_file = temp_dir / "test_output.xlsx"
         
-        test_texts = ["Hello World", "你好世界", "Test Data"]
+        test_texts = ["Hello World", "Hello World", "Test Data"]
         success = file_generator.create_simple_excel(input_file, test_texts)
         
         if not success:
@@ -50,7 +50,7 @@ class TestEndToEndTranslation:
         input_file = temp_dir / "test_input.docx"
         output_file = temp_dir / "test_output.docx"
         
-        test_texts = ["This is a test document", "这是一个测试文档"]
+        test_texts = ["This is a test document", "This is a test document"]
         success = file_generator.create_simple_word(input_file, test_texts)
         
         if not success:
@@ -72,7 +72,7 @@ class TestEndToEndTranslation:
         input_file = temp_dir / "test_input.pptx"
         output_file = temp_dir / "test_output.pptx"
         
-        test_texts = ["Test Slide Title", "这是测试幻灯片"]
+        test_texts = ["Test Slide Title", "Test Slide Content"]
         success = file_generator.create_simple_ppt(input_file, test_texts)
         
         if not success:

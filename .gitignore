@@ -175,3 +175,6 @@ token.json
 # Cache files
 *.cache
 .cache/
+
+#claude settings
+.claude/
