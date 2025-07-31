@@ -9,7 +9,7 @@ A powerful Office file translation tool library that supports batch translation 
 [![PyPI](https://img.shields.io/pypi/v/offitrans.svg)](https://pypi.org/project/offitrans/)
 [![GitHub Stars](https://img.shields.io/github/stars/minglu6/Offitrans.svg)](https://github.com/minglu6/Offitrans/stargazers)
 
-**English** | [中文](README_ZH.md)
+**English** | [中文](README_CN.md)
 
 </div>
 

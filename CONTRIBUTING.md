@@ -9,7 +9,7 @@ Thank you for your interest in the Offitrans project! We welcome all forms of co
 - ✨ New features
 - 🌍 Translation and localization
 
-[中文贡献指南](CONTRIBUTING_ZH.md)
+[中文贡献指南](CONTRIBUTING_CN.md)
 
 ## 📋 Getting Started
 
