@@ -83,9 +83,10 @@ def basic_translator_usage():
     
     # Create a Google translator
     translator = GoogleTranslator(
-        source_lang="zh",  # Chinese
-        target_lang="en",  # English
-        use_free_api=True,  # Use free Google Translate API
+        source_lang="en",  # English
+        target_lang="zh",  # Chinese
+        use_free_api=False,  # Use free Google Translate API
+        api_key="your_api_key_here",  # Replace with your actual API key
         max_workers=2
     )
     
@@ -210,9 +211,9 @@ def main():
     
     # Run all examples
     basic_translator_usage()
-    processor_factory_example()
-    translation_with_different_languages()
-    basic_excel_translation()
+    # processor_factory_example()
+    # translation_with_different_languages()
+    # basic_excel_translation()
     
     print("\n" + "=" * 60)
     print("Examples completed!")

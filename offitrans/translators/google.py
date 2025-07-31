@@ -5,6 +5,7 @@ This module provides integration with Google Cloud Translation API.
 """
 
 import html
+import os
 import requests
 import logging
 from typing import Dict, Any, Optional
@@ -60,6 +61,10 @@ class GoogleTranslator(BaseAPITranslator):
             use_free_api: Whether to use the free Google Translate API (default: True)
             **kwargs: Additional arguments passed to BaseAPITranslator
         """
+        # If no API key provided, try to get from environment variable
+        if api_key is None:
+            api_key = os.getenv('google_api_key')
+        
         # Set default API URL based on API type
         if 'api_url' not in kwargs:
             if use_free_api:

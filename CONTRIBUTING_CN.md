@@ -230,7 +230,7 @@ pytest --cov=. --cov-report=html
 ```python
 def test_translate_excel_basic():
     """测试基本Excel翻译功能"""
-    translator = ExcelTranslatorV2()
+    translator = ExcelTranslator()
     result = translator.translate_text("你好", "en")
     assert result == "Hello"
 ```

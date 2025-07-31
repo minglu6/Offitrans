@@ -130,7 +130,7 @@ For users upgrading from v0.1.x to v0.2.0:
 #### Import Changes
 ```python
 # Old (still works via backward compatibility)
-from excel_translate import ExcelTranslatorV2
+from excel_translate import ExcelTranslator
 
 # New (recommended)
 from offitrans import ExcelProcessor
@@ -139,7 +139,7 @@ from offitrans import ExcelProcessor
 #### Configuration Changes
 ```python
 # Old
-translator = ExcelTranslatorV2(max_workers=5)
+translator = ExcelTranslator(max_workers=5)
 
 # New
 from offitrans.core.config import Config

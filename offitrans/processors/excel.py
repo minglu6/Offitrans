@@ -694,4 +694,4 @@ class ExcelProcessor(BaseProcessor):
 
 
 # Backward compatibility alias
-ExcelTranslatorV2 = ExcelProcessor
+ExcelTranslator = ExcelProcessor

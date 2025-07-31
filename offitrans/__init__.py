@@ -58,4 +58,4 @@ __all__ = [
 ]
 
 # Backward compatibility aliases
-ExcelTranslatorV2 = ExcelProcessor  # Keep old name for compatibility
+ExcelTranslator = ExcelProcessor  # Keep old name for compatibility
