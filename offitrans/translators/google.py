@@ -6,6 +6,7 @@ This module provides integration with Google Cloud Translation API.
 
 import html
 import os
+import re
 import requests
 import logging
 from typing import Dict, Any, Optional
@@ -123,21 +124,41 @@ class GoogleTranslator(BaseAPITranslator):
                 'q': text
             }
             
+            # Enhanced headers to avoid being blocked
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1'
+            }
+            
             response = requests.get(
                 self.api_url,
                 params=params,
                 timeout=self.timeout,
-                headers={'User-Agent': 'Mozilla/5.0 (compatible; Offitrans/1.0)'}
+                headers=headers
             )
             response.raise_for_status()
             
             # Parse the response
             result = response.json()
             if result and len(result) > 0 and len(result[0]) > 0:
-                translated_text = result[0][0][0]
-                # Decode HTML entities
-                translated_text = html.unescape(translated_text)
-                return translated_text
+                # Handle multiple translation segments
+                translated_segments = []
+                for segment in result[0]:
+                    if segment and len(segment) > 0:
+                        translated_segments.append(segment[0])
+                
+                if translated_segments:
+                    translated_text = ''.join(translated_segments)
+                    # Decode HTML entities
+                    translated_text = html.unescape(translated_text)
+                    return translated_text
+                else:
+                    raise TranslationError(f"No translation found in API response")
             else:
                 raise TranslationError(f"Empty response from Google Translate API")
                 
@@ -241,8 +262,18 @@ class GoogleTranslator(BaseAPITranslator):
             'daily limit exceeded',
             'user rate limit exceeded',
             'bad request',
-            'invalid request'
+            'invalid request',
+            'quota exceeded',
+            'billing not enabled',
+            'access denied',
+            'permission denied'
         ]
+        
+        # Check HTTP status codes for permanent errors
+        if hasattr(error, 'response') and hasattr(error.response, 'status_code'):
+            permanent_status_codes = [400, 401, 403, 404, 429]  # 429 can be temporary but often indicates quota issues
+            if error.response.status_code in permanent_status_codes:
+                return True
         
         return any(error_phrase in error_str for error_phrase in google_permanent_errors)
     
@@ -339,6 +370,56 @@ class GoogleTranslator(BaseAPITranslator):
         # Fall back to static list
         return get_supported_languages()
     
+    def translate_long_text(self, text: str, max_length: int = 5000) -> str:
+        """
+        Translate long text by splitting it into smaller chunks.
+        
+        Args:
+            text: Text to translate
+            max_length: Maximum length per chunk (default: 5000)
+            
+        Returns:
+            Translated text
+        """
+        if len(text) <= max_length:
+            return self.translate_text(text)
+        
+        # Split text into smaller chunks at sentence boundaries
+        sentences = re.split(r'(?<=[.!?])\s+', text)
+        chunks = []
+        current_chunk = ""
+        
+        for sentence in sentences:
+            if len(current_chunk) + len(sentence) + 1 <= max_length:
+                if current_chunk:
+                    current_chunk += " " + sentence
+                else:
+                    current_chunk = sentence
+            else:
+                if current_chunk:
+                    chunks.append(current_chunk)
+                    current_chunk = sentence
+                else:
+                    # Single sentence is too long, split by character limit
+                    for i in range(0, len(sentence), max_length):
+                        chunks.append(sentence[i:i + max_length])
+        
+        if current_chunk:
+            chunks.append(current_chunk)
+        
+        # Translate each chunk
+        translated_chunks = []
+        for i, chunk in enumerate(chunks):
+            try:
+                translated_chunk = self.translate_text(chunk)
+                translated_chunks.append(translated_chunk)
+                logger.info(f"Translated chunk {i+1}/{len(chunks)}")
+            except Exception as e:
+                logger.error(f"Failed to translate chunk {i+1}: {e}")
+                translated_chunks.append(chunk)  # Use original text if translation fails
+        
+        return " ".join(translated_chunks)
+
     def validate_api_key(self) -> bool:
         """
         Validate the Google API key.
