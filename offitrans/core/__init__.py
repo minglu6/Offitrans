@@ -11,16 +11,16 @@ from .utils import (
     detect_language,
     validate_language_code,
     clean_text,
-    split_text_chunks
+    split_text_chunks,
 )
 
 __all__ = [
-    'BaseTranslator',
-    'TranslationCache',
-    'cached_translation',
-    'Config',
-    'detect_language',
-    'validate_language_code', 
-    'clean_text',
-    'split_text_chunks',
+    "BaseTranslator",
+    "TranslationCache",
+    "cached_translation",
+    "Config",
+    "detect_language",
+    "validate_language_code",
+    "clean_text",
+    "split_text_chunks",
 ]

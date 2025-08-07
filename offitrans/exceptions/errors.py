@@ -8,14 +8,14 @@ This module defines all custom exceptions used throughout the library.
 class OffitransError(Exception):
     """
     Base exception class for all Offitrans errors.
-    
+
     All other custom exceptions in the library inherit from this class.
     """
-    
+
     def __init__(self, message: str, details: str = None):
         """
         Initialize the exception.
-        
+
         Args:
             message: Primary error message
             details: Additional error details (optional)
@@ -23,7 +23,7 @@ class OffitransError(Exception):
         super().__init__(message)
         self.message = message
         self.details = details
-    
+
     def __str__(self) -> str:
         """Return string representation of the error."""
         if self.details:
@@ -34,14 +34,14 @@ class OffitransError(Exception):
 class TranslationError(OffitransError):
     """
     Exception raised when translation operations fail.
-    
+
     This includes API failures, network errors, and translation service issues.
     """
-    
+
     def __init__(self, message: str, details: str = None, text: str = None):
         """
         Initialize the translation error.
-        
+
         Args:
             message: Primary error message
             details: Additional error details (optional)
@@ -54,16 +54,16 @@ class TranslationError(OffitransError):
 class ProcessorError(OffitransError):
     """
     Exception raised when file processing operations fail.
-    
+
     This includes errors in Excel, Word, PDF, or PowerPoint processing.
     """
-    
+
     def __init__(self, message: str, details: str = None, file_path: str = None):
         """
         Initialize the processor error.
-        
+
         Args:
-            message: Primary error message  
+            message: Primary error message
             details: Additional error details (optional)
             file_path: Path to the file that caused the error (optional)
         """
@@ -74,14 +74,14 @@ class ProcessorError(OffitransError):
 class ConfigError(OffitransError):
     """
     Exception raised when configuration is invalid or missing.
-    
+
     This includes missing API keys, invalid settings, and configuration validation errors.
     """
-    
+
     def __init__(self, message: str, details: str = None, config_key: str = None):
         """
         Initialize the configuration error.
-        
+
         Args:
             message: Primary error message
             details: Additional error details (optional)
@@ -94,14 +94,14 @@ class ConfigError(OffitransError):
 class FileError(OffitransError):
     """
     Exception raised when file operations fail.
-    
+
     This includes file not found, permission errors, and file format issues.
     """
-    
+
     def __init__(self, message: str, details: str = None, file_path: str = None):
         """
         Initialize the file error.
-        
+
         Args:
             message: Primary error message
             details: Additional error details (optional)
@@ -114,14 +114,20 @@ class FileError(OffitransError):
 class APIError(OffitransError):
     """
     Exception raised when API operations fail.
-    
+
     This includes authentication errors, rate limiting, and service unavailability.
     """
-    
-    def __init__(self, message: str, details: str = None, status_code: int = None, response_body: str = None):
+
+    def __init__(
+        self,
+        message: str,
+        details: str = None,
+        status_code: int = None,
+        response_body: str = None,
+    ):
         """
         Initialize the API error.
-        
+
         Args:
             message: Primary error message
             details: Additional error details (optional)
@@ -136,14 +142,14 @@ class APIError(OffitransError):
 class CacheError(OffitransError):
     """
     Exception raised when cache operations fail.
-    
+
     This includes cache file corruption, permission errors, and disk space issues.
     """
-    
+
     def __init__(self, message: str, details: str = None, cache_file: str = None):
         """
         Initialize the cache error.
-        
+
         Args:
             message: Primary error message
             details: Additional error details (optional)
@@ -155,14 +161,21 @@ class CacheError(OffitransError):
 
 # Specialized processor errors for different file types
 
+
 class ExcelProcessorError(ProcessorError):
     """Exception specific to Excel file processing."""
-    
-    def __init__(self, message: str, details: str = None, file_path: str = None, 
-                 sheet_name: str = None, cell_address: str = None):
+
+    def __init__(
+        self,
+        message: str,
+        details: str = None,
+        file_path: str = None,
+        sheet_name: str = None,
+        cell_address: str = None,
+    ):
         """
         Initialize Excel processor error.
-        
+
         Args:
             message: Primary error message
             details: Additional error details (optional)
@@ -177,12 +190,18 @@ class ExcelProcessorError(ProcessorError):
 
 class WordProcessorError(ProcessorError):
     """Exception specific to Word document processing."""
-    
-    def __init__(self, message: str, details: str = None, file_path: str = None,
-                 paragraph_index: int = None, run_index: int = None):
+
+    def __init__(
+        self,
+        message: str,
+        details: str = None,
+        file_path: str = None,
+        paragraph_index: int = None,
+        run_index: int = None,
+    ):
         """
         Initialize Word processor error.
-        
+
         Args:
             message: Primary error message
             details: Additional error details (optional)
@@ -197,12 +216,17 @@ class WordProcessorError(ProcessorError):
 
 class PDFProcessorError(ProcessorError):
     """Exception specific to PDF file processing."""
-    
-    def __init__(self, message: str, details: str = None, file_path: str = None,
-                 page_number: int = None):
+
+    def __init__(
+        self,
+        message: str,
+        details: str = None,
+        file_path: str = None,
+        page_number: int = None,
+    ):
         """
         Initialize PDF processor error.
-        
+
         Args:
             message: Primary error message
             details: Additional error details (optional)
@@ -215,12 +239,18 @@ class PDFProcessorError(ProcessorError):
 
 class PowerPointProcessorError(ProcessorError):
     """Exception specific to PowerPoint file processing."""
-    
-    def __init__(self, message: str, details: str = None, file_path: str = None,
-                 slide_index: int = None, shape_index: int = None):
+
+    def __init__(
+        self,
+        message: str,
+        details: str = None,
+        file_path: str = None,
+        slide_index: int = None,
+        shape_index: int = None,
+    ):
         """
         Initialize PowerPoint processor error.
-        
+
         Args:
             message: Primary error message
             details: Additional error details (optional)

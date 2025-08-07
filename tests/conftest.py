@@ -17,7 +17,7 @@ from offitrans.processors.excel import ExcelProcessor
 def temp_dir() -> Generator[Path, None, None]:
     """
     Create a temporary directory for tests.
-    
+
     Yields:
         Path to temporary directory
     """
@@ -32,7 +32,7 @@ def temp_dir() -> Generator[Path, None, None]:
 def sample_text_data():
     """
     Sample text data for testing translations.
-    
+
     Returns:
         List of sample texts in different languages
     """
@@ -53,24 +53,25 @@ def sample_text_data():
 def mock_translator():
     """
     Create a mock translator for testing.
-    
+
     Returns:
         Mock translator instance
     """
+
     class MockTranslator:
         def __init__(self, source_lang="auto", target_lang="en"):
             self.source_lang = source_lang
             self.target_lang = target_lang
-        
+
         def translate_text(self, text: str) -> str:
             # Simple mock translation - just add prefix
             if text.strip():
                 return f"[TRANSLATED_{self.target_lang}] {text}"
             return text
-        
+
         def translate_text_batch(self, texts):
             return [self.translate_text(text) for text in texts]
-    
+
     return MockTranslator()
 
 
@@ -78,7 +79,7 @@ def mock_translator():
 def test_config():
     """
     Create a test configuration.
-    
+
     Returns:
         Config instance for testing
     """
@@ -96,7 +97,7 @@ def google_translator():
     """
     Create a Google translator instance for testing.
     Note: This will use the free API without API key for basic tests.
-    
+
     Returns:
         GoogleTranslator instance
     """
@@ -105,7 +106,7 @@ def google_translator():
         target_lang="en",
         use_free_api=True,
         max_workers=1,  # Conservative for tests
-        timeout=10
+        timeout=10,
     )
 
 
@@ -113,10 +114,10 @@ def google_translator():
 def excel_processor(test_config):
     """
     Create an Excel processor for testing.
-    
+
     Args:
         test_config: Test configuration fixture
-        
+
     Returns:
         ExcelProcessor instance
     """
@@ -128,78 +129,78 @@ def excel_processor(test_config):
 
 class TestFileGenerator:
     """Helper class to generate test files"""
-    
+
     @staticmethod
     def create_simple_excel(file_path: Path, texts: list = None):
         """Create a simple Excel file for testing"""
         try:
             from openpyxl import Workbook
-            
+
             wb = Workbook()
             ws = wb.active
             ws.title = "Test Sheet"
-            
+
             test_texts = texts or [
                 "Hello World",
                 "Hello World",
                 "Test Data",
                 "123",
-                "sample@email.com"
+                "sample@email.com",
             ]
-            
+
             for i, text in enumerate(test_texts, 1):
-                ws[f'A{i}'] = text
-            
+                ws[f"A{i}"] = text
+
             wb.save(file_path)
             return True
-            
+
         except ImportError:
             return False
-    
+
     @staticmethod
     def create_simple_word(file_path: Path, texts: list = None):
         """Create a simple Word document for testing"""
         try:
             from docx import Document
-            
+
             doc = Document()
-            
+
             test_texts = texts or [
                 "This is a test document",
                 "This is a test document",
-                "Sample paragraph with formatting"
+                "Sample paragraph with formatting",
             ]
-            
+
             for text in test_texts:
                 doc.add_paragraph(text)
-            
+
             doc.save(file_path)
             return True
-            
+
         except ImportError:
             return False
-    
+
     @staticmethod
     def create_simple_ppt(file_path: Path, texts: list = None):
         """Create a simple PowerPoint for testing"""
         try:
             from pptx import Presentation
-            
+
             prs = Presentation()
-            
+
             test_texts = texts or [
                 "Test Slide Title",
                 "Test Slide Content",
-                "Sample content"
+                "Sample content",
             ]
-            
+
             for text in test_texts:
                 slide = prs.slides.add_slide(prs.slide_layouts[1])
                 slide.shapes.title.text = text
-            
+
             prs.save(file_path)
             return True
-            
+
         except ImportError:
             return False
 
@@ -208,7 +209,7 @@ class TestFileGenerator:
 def file_generator():
     """
     File generator fixture for creating test files.
-    
+
     Returns:
         TestFileGenerator instance
     """
@@ -219,11 +220,19 @@ def file_generator():
 def pytest_configure(config):
     """Configure pytest with custom markers"""
     config.addinivalue_line("markers", "integration: mark test as integration test")
-    config.addinivalue_line("markers", "slow: mark test as slow running") 
-    config.addinivalue_line("markers", "requires_api: mark test as requiring API access")
-    config.addinivalue_line("markers", "requires_openpyxl: mark test as requiring openpyxl")
-    config.addinivalue_line("markers", "requires_docx: mark test as requiring python-docx")
-    config.addinivalue_line("markers", "requires_pptx: mark test as requiring python-pptx")
+    config.addinivalue_line("markers", "slow: mark test as slow running")
+    config.addinivalue_line(
+        "markers", "requires_api: mark test as requiring API access"
+    )
+    config.addinivalue_line(
+        "markers", "requires_openpyxl: mark test as requiring openpyxl"
+    )
+    config.addinivalue_line(
+        "markers", "requires_docx: mark test as requiring python-docx"
+    )
+    config.addinivalue_line(
+        "markers", "requires_pptx: mark test as requiring python-pptx"
+    )
 
 
 def pytest_collection_modifyitems(config, items):
@@ -232,15 +241,18 @@ def pytest_collection_modifyitems(config, items):
         # Mark integration tests
         if "integration" in str(item.fspath):
             item.add_marker(pytest.mark.integration)
-        
+
         # Mark tests that require specific libraries
         if "excel" in str(item.fspath).lower():
             item.add_marker(pytest.mark.requires_openpyxl)
         elif "word" in str(item.fspath).lower():
             item.add_marker(pytest.mark.requires_docx)
-        elif "powerpoint" in str(item.fspath).lower() or "ppt" in str(item.fspath).lower():
+        elif (
+            "powerpoint" in str(item.fspath).lower()
+            or "ppt" in str(item.fspath).lower()
+        ):
             item.add_marker(pytest.mark.requires_pptx)
-        
+
         # Mark API tests
         if "api" in item.name.lower() or "translate" in item.name.lower():
             item.add_marker(pytest.mark.requires_api)

@@ -18,7 +18,7 @@ from .core.config import Config
 # Main translators
 from .translators.google import GoogleTranslator
 
-# File processors  
+# File processors
 from .processors.excel import ExcelProcessor
 from .processors.word import WordProcessor
 from .processors.pdf import PDFProcessor
@@ -29,32 +29,28 @@ from .exceptions.errors import (
     OffitransError,
     TranslationError,
     ProcessorError,
-    ConfigError
+    ConfigError,
 )
 
 __all__ = [
     # Version
-    '__version__',
-    
+    "__version__",
     # Core
-    'BaseTranslator',
-    'TranslationCache', 
-    'Config',
-    
+    "BaseTranslator",
+    "TranslationCache",
+    "Config",
     # Translators
-    'GoogleTranslator',
-    
+    "GoogleTranslator",
     # Processors
-    'ExcelProcessor',
-    'WordProcessor', 
-    'PDFProcessor',
-    'PowerPointProcessor',
-    
+    "ExcelProcessor",
+    "WordProcessor",
+    "PDFProcessor",
+    "PowerPointProcessor",
     # Exceptions
-    'OffitransError',
-    'TranslationError',
-    'ProcessorError',
-    'ConfigError',
+    "OffitransError",
+    "TranslationError",
+    "ProcessorError",
+    "ConfigError",
 ]
 
 # Backward compatibility aliases

@@ -18,27 +18,29 @@ logger = logging.getLogger(__name__)
 class BaseTranslator(ABC):
     """
     Abstract base class for all translators.
-    
+
     This class defines the common interface and functionality that all
     translator implementations must provide.
     """
 
-    def __init__(self, 
-                 source_lang: str = "auto",
-                 target_lang: str = "en",
-                 max_workers: int = 5,
-                 timeout: int = 120,
-                 retry_count: int = 3,
-                 retry_delay: int = 2,
-                 batch_size: int = 20,
-                 enable_cache: bool = True,
-                 **kwargs):
+    def __init__(
+        self,
+        source_lang: str = "auto",
+        target_lang: str = "en",
+        max_workers: int = 5,
+        timeout: int = 120,
+        retry_count: int = 3,
+        retry_delay: int = 2,
+        batch_size: int = 20,
+        enable_cache: bool = True,
+        **kwargs,
+    ):
         """
         Initialize the base translator.
-        
+
         Args:
             source_lang: Source language code (default: "auto" for auto-detection)
-            target_lang: Target language code (default: "en")  
+            target_lang: Target language code (default: "en")
             max_workers: Maximum number of concurrent workers (default: 5)
             timeout: Request timeout in seconds (default: 120)
             retry_count: Number of retry attempts (default: 3)
@@ -55,45 +57,45 @@ class BaseTranslator(ABC):
         self.retry_delay = retry_delay
         self.batch_size = batch_size
         self.enable_cache = enable_cache
-        
+
         # Supported languages mapping
         self.supported_languages = {
-            'zh': 'zh',  # Chinese
-            'en': 'en',  # English
-            'th': 'th',  # Thai
-            'ja': 'ja',  # Japanese
-            'ko': 'ko',  # Korean
-            'fr': 'fr',  # French
-            'de': 'de',  # German
-            'es': 'es',  # Spanish
-            'auto': 'auto',  # Auto-detection
+            "zh": "zh",  # Chinese
+            "en": "en",  # English
+            "th": "th",  # Thai
+            "ja": "ja",  # Japanese
+            "ko": "ko",  # Korean
+            "fr": "fr",  # French
+            "de": "de",  # German
+            "es": "es",  # Spanish
+            "auto": "auto",  # Auto-detection
         }
-        
+
         # Thread safety
         self._lock = threading.Lock()
-        
+
         # Statistics
         self.stats = {
-            'total_translations': 0,
-            'successful_translations': 0,
-            'failed_translations': 0,
-            'total_chars_translated': 0,
+            "total_translations": 0,
+            "successful_translations": 0,
+            "failed_translations": 0,
+            "total_chars_translated": 0,
         }
-        
+
         # Initialize any additional settings from kwargs
         self._init_kwargs(kwargs)
 
     def _init_kwargs(self, kwargs: Dict[str, Any]) -> None:
         """
         Initialize additional settings from keyword arguments.
-        
+
         Args:
             kwargs: Additional keyword arguments
         """
         # Override supported languages if provided
-        if 'supported_languages' in kwargs:
-            self.supported_languages.update(kwargs['supported_languages'])
-        
+        if "supported_languages" in kwargs:
+            self.supported_languages.update(kwargs["supported_languages"])
+
         # Set additional configuration
         for key, value in kwargs.items():
             if not hasattr(self, key):
@@ -109,7 +111,7 @@ class BaseTranslator(ABC):
 
         Returns:
             Translated text.
-            
+
         Raises:
             TranslationError: If translation fails
         """
@@ -125,7 +127,7 @@ class BaseTranslator(ABC):
 
         Returns:
             List of translated text strings.
-            
+
         Raises:
             TranslationError: If batch translation fails
         """
@@ -133,12 +135,12 @@ class BaseTranslator(ABC):
             return []
 
         logger.info(f"Starting batch translation of {len(texts)} texts")
-        
+
         # Use multithreading for translation
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             # Submit all translation tasks
             future_to_index = {
-                executor.submit(self.translate_text, text): i 
+                executor.submit(self.translate_text, text): i
                 for i, text in enumerate(texts)
             }
 
@@ -153,7 +155,7 @@ class BaseTranslator(ABC):
                     results[index] = result if result is not None else ""
                     self._update_stats(success=True, chars=len(texts[index]))
                 except Exception as exc:
-                    logger.error(f'Translation at index {index} failed: {exc}')
+                    logger.error(f"Translation at index {index} failed: {exc}")
                     results[index] = texts[index]  # Return original text on error
                     self._update_stats(success=False)
 
@@ -179,10 +181,10 @@ class BaseTranslator(ABC):
     def validate_language_code(self, lang_code: str) -> bool:
         """
         Validate if a language code is supported.
-        
+
         Args:
             lang_code: Language code to validate
-            
+
         Returns:
             True if supported, False otherwise
         """
@@ -191,7 +193,7 @@ class BaseTranslator(ABC):
     def get_supported_languages(self) -> Dict[str, str]:
         """
         Get the dictionary of supported languages.
-        
+
         Returns:
             Dictionary mapping language codes to language names
         """
@@ -200,23 +202,23 @@ class BaseTranslator(ABC):
     def _update_stats(self, success: bool = True, chars: int = 0) -> None:
         """
         Update translation statistics (thread-safe).
-        
+
         Args:
             success: Whether the translation was successful
             chars: Number of characters translated
         """
         with self._lock:
-            self.stats['total_translations'] += 1
+            self.stats["total_translations"] += 1
             if success:
-                self.stats['successful_translations'] += 1
-                self.stats['total_chars_translated'] += chars
+                self.stats["successful_translations"] += 1
+                self.stats["total_chars_translated"] += chars
             else:
-                self.stats['failed_translations'] += 1
+                self.stats["failed_translations"] += 1
 
     def get_stats(self) -> Dict[str, int]:
         """
         Get translation statistics.
-        
+
         Returns:
             Dictionary containing translation statistics
         """
@@ -227,10 +229,10 @@ class BaseTranslator(ABC):
         """Reset translation statistics."""
         with self._lock:
             self.stats = {
-                'total_translations': 0,
-                'successful_translations': 0,
-                'failed_translations': 0,
-                'total_chars_translated': 0,
+                "total_translations": 0,
+                "successful_translations": 0,
+                "failed_translations": 0,
+                "total_chars_translated": 0,
             }
 
     def __str__(self) -> str:
@@ -239,10 +241,12 @@ class BaseTranslator(ABC):
 
     def __repr__(self) -> str:
         """Detailed string representation of the translator."""
-        return (f"{self.__class__.__name__}("
-                f"source_lang='{self.source_lang}', "
-                f"target_lang='{self.target_lang}', "
-                f"max_workers={self.max_workers})")
+        return (
+            f"{self.__class__.__name__}("
+            f"source_lang='{self.source_lang}', "
+            f"target_lang='{self.target_lang}', "
+            f"max_workers={self.max_workers})"
+        )
 
 
 # Backward compatibility alias
