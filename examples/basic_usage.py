@@ -82,11 +82,14 @@ def basic_translator_usage():
     print("=" * 60)
     
     # Create a Google translator
+    # For security, get API key from environment variable instead of hardcoding
+    api_key = os.getenv('GOOGLE_TRANSLATE_API_KEY')  # or use 'OFFITRANS_API_KEY'
+    
     translator = GoogleTranslator(
         source_lang="en",  # English
         target_lang="zh",  # Chinese
-        use_free_api=False,  # Use free Google Translate API
-        api_key="your_api_key_here",  # Replace with your actual API key
+        use_free_api=True,  # Use free Google Translate API (set to False if using API key)
+        api_key=api_key,    # API key from environment variable
         max_workers=2
     )
     

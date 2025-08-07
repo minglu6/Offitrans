@@ -257,17 +257,20 @@ No configuration needed - works out of the box with rate limits.
 4. Configure Offitrans:
 
 ```python
+import os
 from offitrans import GoogleTranslator
 
+# SECURE: Use environment variable for API key
 translator = GoogleTranslator(
-    api_key="your-google-api-key",
+    api_key=os.getenv('GOOGLE_TRANSLATE_API_KEY'),
     use_free_api=False
 )
 ```
 
 Or set environment variable:
 ```bash
-export OFFITRANS_API_KEY="your-google-api-key"
+# Set your actual API key here
+export OFFITRANS_API_KEY="your-actual-google-api-key"
 ```
 
 ## Troubleshooting

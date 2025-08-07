@@ -150,14 +150,14 @@ processor.translate_file(
 
 ```python
 from offitrans.translators.google import GoogleTranslator
-
-# 使用API密钥
-translator = GoogleTranslator(api_key="your-google-translate-api-key")
-
-# 或者设置环境变量
 import os
-os.environ['GOOGLE_TRANSLATE_API_KEY'] = 'your-api-key'
-translator = GoogleTranslator()
+
+# 安全做法：始终使用环境变量存储API密钥
+# 在环境中设置API密钥: export GOOGLE_TRANSLATE_API_KEY="your-key"
+translator = GoogleTranslator(api_key=os.getenv('GOOGLE_TRANSLATE_API_KEY'))
+
+# 或者使用 OFFITRANS_API_KEY 环境变量
+translator = GoogleTranslator(api_key=os.getenv('OFFITRANS_API_KEY'))
 ```
 
 ### 支持的语言代码

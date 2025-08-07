@@ -24,14 +24,17 @@ class TranslationCache:
     to reduce API calls and improve performance.
     """
     
-    def __init__(self, cache_file: str = "translation_cache.json", auto_save_interval: int = 10):
+    def __init__(self, cache_file: Optional[str] = None, auto_save_interval: int = 10):
         """
         Initialize translation cache.
         
         Args:
-            cache_file: Path to the cache file (default: "translation_cache.json")
+            cache_file: Path to the cache file (default: uses XDG cache directory)
             auto_save_interval: Save cache every N operations (default: 10)
         """
+        if cache_file is None:
+            from .config import get_default_cache_path
+            cache_file = get_default_cache_path()
         self.cache_file = Path(cache_file)
         self.auto_save_interval = auto_save_interval
         self._cache: Dict[str, str] = {}
@@ -291,6 +294,11 @@ def cached_translation(cache_instance: Optional[TranslationCache] = None):
     def decorator(translate_func):
         @wraps(translate_func)
         def wrapper(self, text: str) -> str:
+            # Check if caching is enabled for this translator
+            if not getattr(self, 'enable_cache', True):
+                logger.debug(f"Cache disabled, calling API directly: {text[:50]}...")
+                return translate_func(self, text)
+            
             # Use specified cache instance or global cache
             cache = cache_instance or _global_cache
             

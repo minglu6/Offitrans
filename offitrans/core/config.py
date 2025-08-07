@@ -14,6 +14,23 @@ from dataclasses import dataclass, asdict
 logger = logging.getLogger(__name__)
 
 
+def get_default_cache_path() -> str:
+    """
+    Get the default cache file path following XDG Base Directory specification.
+    
+    Returns:
+        Default cache file path
+    """
+    # Use XDG_CACHE_HOME if set
+    if cache_home := os.getenv('XDG_CACHE_HOME'):
+        cache_dir = Path(cache_home) / 'offitrans'
+    else:
+        # Fallback to ~/.cache/offitrans
+        cache_dir = Path.home() / '.cache' / 'offitrans'
+    
+    return str(cache_dir / 'translation_cache.json')
+
+
 @dataclass
 class TranslatorConfig:
     """Configuration for translator settings."""
@@ -30,7 +47,7 @@ class TranslatorConfig:
 class CacheConfig:
     """Configuration for cache settings."""
     enabled: bool = True
-    cache_file: str = "translation_cache.json"
+    cache_file: str = get_default_cache_path()
     auto_save_interval: int = 10
     max_entries: int = 10000
 

@@ -150,14 +150,14 @@ processor.translate_file(
 
 ```python
 from offitrans.translators.google import GoogleTranslator
-
-# Using API key
-translator = GoogleTranslator(api_key="your-google-translate-api-key")
-
-# Or set environment variable
 import os
-os.environ['GOOGLE_TRANSLATE_API_KEY'] = 'your-api-key'
-translator = GoogleTranslator()
+
+# SECURE: Always use environment variables for API keys
+# Set your API key in environment: export GOOGLE_TRANSLATE_API_KEY="your-key"
+translator = GoogleTranslator(api_key=os.getenv('GOOGLE_TRANSLATE_API_KEY'))
+
+# Alternative: Use OFFITRANS_API_KEY environment variable
+translator = GoogleTranslator(api_key=os.getenv('OFFITRANS_API_KEY'))
 ```
 
 ### Supported Language Codes

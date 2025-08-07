@@ -31,6 +31,7 @@ class BaseTranslator(ABC):
                  retry_count: int = 3,
                  retry_delay: int = 2,
                  batch_size: int = 20,
+                 enable_cache: bool = True,
                  **kwargs):
         """
         Initialize the base translator.
@@ -43,6 +44,7 @@ class BaseTranslator(ABC):
             retry_count: Number of retry attempts (default: 3)
             retry_delay: Delay between retries in seconds (default: 2)
             batch_size: Batch processing size (default: 20)
+            enable_cache: Whether to enable translation cache (default: True)
             **kwargs: Additional keyword arguments
         """
         self.source_lang = source_lang
@@ -52,6 +54,7 @@ class BaseTranslator(ABC):
         self.retry_count = retry_count
         self.retry_delay = retry_delay
         self.batch_size = batch_size
+        self.enable_cache = enable_cache
         
         # Supported languages mapping
         self.supported_languages = {
