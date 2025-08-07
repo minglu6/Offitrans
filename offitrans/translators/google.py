@@ -52,14 +52,14 @@ class GoogleTranslator(BaseAPITranslator):
     
     def __init__(self, 
                  api_key: Optional[str] = None,
-                 use_free_api: bool = True,
+                 use_free_api: bool = False,
                  **kwargs):
         """
         Initialize Google Translator.
         
         Args:
             api_key: Google Cloud API key (optional for free API)
-            use_free_api: Whether to use the free Google Translate API (default: True)
+            use_free_api: Whether to use the free Google Translate API (default: False)
             **kwargs: Additional arguments passed to BaseAPITranslator
         """
         # If no API key provided, try to get from environment variable

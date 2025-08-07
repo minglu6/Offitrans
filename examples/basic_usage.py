@@ -53,7 +53,7 @@ def basic_excel_translation():
         success = processor.process_file(
             input_file, 
             output_file, 
-            target_language="en"  # Translate to English
+            target_language="zh"  # Translate to Chinese
         )
         
         if success:
