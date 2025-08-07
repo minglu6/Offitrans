@@ -41,7 +41,7 @@ def basic_excel_translation():
 
     # Example file paths (adjust these to your actual files)
     input_file = "examples/sample_files/sample.xlsx"
-    output_file = "examples/sample_files/sample_translated.xlsx"
+    output_file = "examples/sample_files/output/sample_translated.xlsx"
 
     # Check if input file exists
     if not os.path.exists(input_file):

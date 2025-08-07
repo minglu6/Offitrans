@@ -151,7 +151,7 @@ class ExcelProcessor(BaseProcessor):
         self, workbook, images_info: Dict[str, List[Dict[str, Any]]]
     ) -> None:
         """
-        Restore image information to Excel workbook.
+        Restore image information to Excel workbook with enhanced error handling.
 
         Args:
             workbook: openpyxl workbook object
@@ -175,23 +175,157 @@ class ExcelProcessor(BaseProcessor):
                     try:
                         img_obj = img_info["image_object"]
 
-                        # Use the original image object if possible
-                        if hasattr(img_obj, "anchor") and img_obj.anchor:
-                            sheet.add_image(img_obj)
-                            logger.debug(
-                                f"Successfully restored image in sheet {sheet_name}"
-                            )
+                        # Use safe image creation method
+                        new_img = self._safe_create_image(img_obj)
+                        if new_img is None:
+                            logger.warning("Could not create image object, skipping this image")
+                            continue
+
+                        # Restore anchor information
+                        anchor_info = img_info.get("anchor_info", {})
+                        if anchor_info.get("type") == "two_cell":
+                            # Create TwoCellAnchor
+                            anchor = TwoCellAnchor()
+                            anchor._from.col = anchor_info["from_col"]
+                            anchor._from.colOff = anchor_info["from_col_off"]
+                            anchor._from.row = anchor_info["from_row"]
+                            anchor._from.rowOff = anchor_info["from_row_off"]
+                            anchor.to.col = anchor_info["to_col"]
+                            anchor.to.colOff = anchor_info["to_col_off"]
+                            anchor.to.row = anchor_info["to_row"]
+                            anchor.to.rowOff = anchor_info["to_row_off"]
+
+                        elif anchor_info.get("type") == "one_cell":
+                            # Create OneCellAnchor
+                            anchor = OneCellAnchor()
+                            anchor._from.col = anchor_info["from_col"]
+                            anchor._from.colOff = anchor_info["from_col_off"]
+                            anchor._from.row = anchor_info["from_row"]
+                            anchor._from.rowOff = anchor_info["from_row_off"]
+                            anchor.ext.cx = anchor_info["width"]
+                            anchor.ext.cy = anchor_info["height"]
                         else:
-                            logger.warning(
-                                f"Could not restore image in sheet {sheet_name}"
-                            )
+                            # Use original anchor
+                            anchor = img_obj.anchor
+
+                        new_img.anchor = anchor
+                        try:
+                            sheet.add_image(new_img)
+                            logger.debug(f"Successfully added image to sheet {sheet_name}")
+                        except Exception as add_err:
+                            logger.warning(f"Adding image to sheet failed: {add_err}")
+                            # Try using default anchor to re-add
+                            try:
+                                default_anchor = OneCellAnchor()
+                                new_img.anchor = default_anchor
+                                sheet.add_image(new_img)
+                                logger.debug("Successfully added image using default anchor")
+                            except Exception as default_err:
+                                logger.error(f"Using default anchor also failed: {default_err}")
+                                continue
 
                     except Exception as e:
                         logger.error(f"Error restoring image: {e}")
-                        continue
+                        # If unable to restore anchor, try alternative approach
+                        try:
+                            logger.debug("Trying to use original image object...")
+                            # Check original image object status
+                            if hasattr(img_obj, "anchor") and img_obj.anchor:
+                                sheet.add_image(img_obj)
+                                logger.debug("Successfully used original image object")
+                            else:
+                                # Create a simple default anchor
+                                default_anchor = OneCellAnchor()
+                                default_anchor._from.col = 0
+                                default_anchor._from.row = 0
+                                default_anchor._from.colOff = 0
+                                default_anchor._from.rowOff = 0
+
+                                # Set default size
+                                default_anchor.ext.cx = 2000000  # Default width
+                                default_anchor.ext.cy = 2000000  # Default height
+
+                                img_obj.anchor = default_anchor
+                                sheet.add_image(img_obj)
+                                logger.debug("Successfully used default anchor")
+                        except Exception as fallback_err:
+                            logger.error(f"All image restoration methods failed: {fallback_err}")
+                            logger.info("Skipping this image, continuing with others")
+                            continue
 
         except Exception as e:
             logger.error(f"Error restoring images: {e}")
+    
+    def _safe_create_image(self, img_obj) -> Optional[Image]:
+        """
+        Safely create image object, handling various possible errors.
+        
+        Args:
+            img_obj: Original image object
+            
+        Returns:
+            New image object or None
+        """
+        try:
+            # Method 1: Direct use of original object (safest)
+            if hasattr(img_obj, "anchor"):
+                logger.debug("Using original image object (recommended method)")
+                return img_obj
+            
+            # Method 2: Try using _data() method
+            if hasattr(img_obj, "_data"):
+                try:
+                    img_data = img_obj._data()
+                    if img_data:
+                        # Check and clean data
+                        if isinstance(img_data, bytes):
+                            # Remove null bytes
+                            if b'\x00' in img_data:
+                                logger.debug("Detected null bytes, cleaning...")
+                                img_data = img_data.replace(b'\x00', b'')
+                            
+                            # Validate image data (if PIL available)
+                            if PIL_AVAILABLE:
+                                try:
+                                    # Use PIL to validate image data
+                                    import io
+                                    test_img = PILImage.open(io.BytesIO(img_data))
+                                    test_img.verify()
+                                    logger.debug("Image data validation successful")
+                                except Exception as pil_err:
+                                    logger.debug(f"PIL validation failed: {pil_err}")
+                                    # Continue trying to use data
+                            else:
+                                logger.debug("Skipping PIL validation (not installed)")
+                            
+                            # Create new openpyxl image object
+                            try:
+                                new_img = Image(img_data)
+                                logger.debug("Successfully created image using cleaned data")
+                                return new_img
+                            except Exception as create_err:
+                                logger.debug(f"Failed to create image using cleaned data: {create_err}")
+                                pass
+                        
+                except Exception as data_err:
+                    logger.debug(f"Failed to get image data: {data_err}")
+            
+            # Method 3: Try using other attributes
+            if hasattr(img_obj, "ref"):
+                try:
+                    logger.debug("Trying to use image reference")
+                    # This may need to reload image from workbook
+                    return img_obj
+                except Exception:
+                    pass
+            
+            # If all methods fail, return original object
+            logger.debug("All methods failed, returning original object")
+            return img_obj
+            
+        except Exception as e:
+            logger.error(f"Image object creation completely failed: {e}")
+            return None
 
     def extract_text(self, file_path: str) -> List[Dict[str, Any]]:
         """
@@ -249,6 +383,22 @@ class ExcelProcessor(BaseProcessor):
                                 logger.debug(
                                     f"Extracted text from {sheet_name}!{cell.coordinate}: '{cell.value[:50]}...'"
                                 )
+                                
+                                # Special attention to row 78 columns M-Q (referenced in original code)
+                                if cell.row == 78 and cell.column >= 13 and cell.column <= 17:  # M=13, Q=17
+                                    logger.info(f"Special attention: Row 78 M-Q column {cell.coordinate}")
+                                    logger.info(f"  Text content: '{cell.value}'")
+                                    logger.info(f"  Rich text info: {rich_text_info}")
+                                    
+                                    # Detailed check of this cell
+                                    logger.info(f"  Raw content check:")
+                                    logger.info(f"    cell.value: {type(cell.value)} = {cell.value}")
+                                    logger.info(f"    cell._value: {type(cell._value) if hasattr(cell, '_value') else 'None'}")
+                                    
+                                    # Check merged cell
+                                    merged_info = self._check_merged_cell(cell)
+                                    if merged_info:
+                                        logger.info(f"  Merged cell info: {merged_info}")
 
             workbook.close()
             logger.info(f"Total extracted {len(text_data)} text cells")
@@ -362,6 +512,33 @@ class ExcelProcessor(BaseProcessor):
                         target_language,
                     )
 
+                # Handle merged cell synchronization
+                merged_cell_info = self._check_merged_cell(cell)
+                if merged_cell_info:
+                    logger.debug(f"Processing merged cell: {merged_cell_info['range']}")
+                    self._synchronize_merged_cell_formats(cell, item["text"], translated_text, format_info, rich_text_info, merged_cell_info)
+                
+                # Special processing for row 78 M-Q columns (compatibility with reference code)
+                if cell.row == 78 and cell.column >= 13 and cell.column <= 17:  # M=13, Q=17
+                    logger.info(f"Special attention row 78 {cell.coordinate}")
+                    logger.info(f"  Translation before: '{item['text']}'")
+                    logger.info(f"  Translation after: '{translated_text}'")
+                    logger.info(f"  Rich text info: {rich_text_info}")
+                    
+                    # If no rich text detected but may exist, try forced recheck
+                    if not rich_text_info:
+                        logger.info(f"  Forced rich text recheck...")
+                        rich_text_info = self._extract_rich_text_format(cell)
+                        if rich_text_info:
+                            logger.info(f"  Recheck found rich text: {rich_text_info}")
+                            self._apply_rich_text_format(
+                                cell, item["text"], translated_text, rich_text_info, target_language
+                            )
+                            
+                            # If found rich text and is merged cell, re-synchronize
+                            if merged_cell_info:
+                                self._synchronize_merged_cell_formats(cell, item["text"], translated_text, format_info, rich_text_info, merged_cell_info)
+                
                 logger.debug(f"Applied translation to {sheet_name}!{cell.coordinate}")
 
             # Restore images if image protection is enabled
@@ -466,20 +643,87 @@ class ExcelProcessor(BaseProcessor):
             Rich text format information or None
         """
         try:
-            # Check for rich text in cell value
-            if hasattr(cell, "_value") and isinstance(cell._value, CellRichText):
-                return self._parse_rich_text_object(cell._value, cell.coordinate)
-            elif isinstance(cell.value, CellRichText):
-                return self._parse_rich_text_object(cell.value, cell.coordinate)
-
+            # Enhanced debugging information
+            cell_text = str(cell.value) if cell.value else ""
+            logger.debug(f"Checking cell {cell.coordinate}: '{cell_text[:30]}...'")
+            logger.debug(f"Cell type: {type(cell.value)}")
+            logger.debug(f"_value type: {type(cell._value) if hasattr(cell, '_value') else 'None'}")
+            
+            # Check merged cell status
+            merged_info = None
+            if hasattr(cell, 'coordinate'):
+                worksheet = cell.parent
+                if worksheet and hasattr(worksheet, 'merged_cells'):
+                    for merged_range in worksheet.merged_cells.ranges:
+                        if cell.coordinate in merged_range:
+                            logger.debug(f"Detected merged cell: {merged_range}")
+                            merged_info = {
+                                'range': str(merged_range),
+                                'top_left': merged_range.coord.split(':')[0]
+                            }
+                            break
+            
+            # Method 1: Check _value attribute
+            if hasattr(cell, '_value') and isinstance(cell._value, CellRichText):
+                logger.debug(f"Found rich text in _value")
+                rich_text = cell._value
+                return self._parse_rich_text_object(rich_text, cell.coordinate, merged_info)
+            
+            # Method 2: Check value attribute
+            if isinstance(cell.value, CellRichText):
+                logger.debug(f"Found rich text in value")
+                rich_text = cell.value
+                return self._parse_rich_text_object(rich_text, cell.coordinate, merged_info)
+            
+            # Method 3: For merged cells, check the range's first cell
+            if merged_info:
+                try:
+                    worksheet = cell.parent
+                    top_left_cell = worksheet[merged_info['top_left']]
+                    
+                    # Check merged cell's main cell for rich text
+                    if hasattr(top_left_cell, '_value') and isinstance(top_left_cell._value, CellRichText):
+                        logger.debug(f"Found rich text in merged cell main cell")
+                        rich_text = top_left_cell._value
+                        return self._parse_rich_text_object(rich_text, cell.coordinate, merged_info)
+                    elif isinstance(top_left_cell.value, CellRichText):
+                        logger.debug(f"Found rich text in merged cell main cell value")
+                        rich_text = top_left_cell.value
+                        return self._parse_rich_text_object(rich_text, cell.coordinate, merged_info)
+                except Exception as merged_err:
+                    logger.debug(f"Error checking merged cell main cell: {merged_err}")
+            
+            # Method 4: Check for rich text attributes
+            if hasattr(cell, 'richText') and cell.richText:
+                logger.debug(f"Found traditional richText format")
+                # Handle traditional richText format if needed
+                return None
+            
+            # Method 5: Check raw data structure
+            if hasattr(cell, '_value') and hasattr(cell._value, '__dict__'):
+                logger.debug(f"_value attributes: {cell._value.__dict__}")
+            
+            # Method 6: Check all attributes for rich text
+            rich_attrs = [attr for attr in dir(cell) if 'rich' in attr.lower()]
+            if rich_attrs:
+                logger.debug(f"Found rich text related attributes: {rich_attrs}")
+                for attr in rich_attrs:
+                    try:
+                        value = getattr(cell, attr)
+                        if value:
+                            logger.debug(f"{attr}: {type(value)} = {value}")
+                    except Exception:
+                        pass
+            
+            logger.debug(f"No rich text format detected")
             return None
-
+            
         except Exception as e:
             logger.error(f"Error extracting rich text format: {e}")
             return None
 
     def _parse_rich_text_object(
-        self, rich_text: CellRichText, coordinate: str
+        self, rich_text: CellRichText, coordinate: str, merged_info: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Parse rich text object and extract formatting information.
@@ -487,13 +731,20 @@ class ExcelProcessor(BaseProcessor):
         Args:
             rich_text: CellRichText object
             coordinate: Cell coordinate
+            merged_info: Merged cell information
 
         Returns:
             Rich text information dictionary
         """
-        rich_info = {"has_rich_text": True, "segments": []}
+        rich_info = {
+            "has_rich_text": True, 
+            "segments": [],
+            "merged_info": merged_info
+        }
 
         logger.debug(f"Found rich text format in {coordinate}")
+        if merged_info:
+            logger.debug(f"Merged cell range: {merged_info['range']}")
 
         try:
             for i, item in enumerate(rich_text):
@@ -508,10 +759,43 @@ class ExcelProcessor(BaseProcessor):
                             "bold": getattr(item.font, "b", None),
                             "italic": getattr(item.font, "i", None),
                             "underline": getattr(item.font, "u", None),
-                            "color": getattr(item.font, "color", None),
+                            "color": self._safe_copy_color(getattr(item.font, "color", None)) if getattr(item.font, "color", None) else None
                         }
+                        
+                        # Enhanced color information extraction
+                        if getattr(item.font, "color", None):
+                            font_color = getattr(item.font, "color", None)
+                            font_info['color_raw'] = font_color
+                            if hasattr(font_color, 'rgb') and font_color.rgb:
+                                font_info['color_rgb'] = font_color.rgb
+                            if hasattr(font_color, 'indexed') and font_color.indexed is not None:
+                                font_info['color_indexed'] = font_color.indexed
+                            if hasattr(font_color, 'theme') and font_color.theme is not None:
+                                font_info['color_theme'] = font_color.theme
+                                if hasattr(font_color, 'tint') and font_color.tint is not None:
+                                    font_info['color_tint'] = font_color.tint
+                        
                         segment_info["font"] = font_info
-
+                        
+                        # Debug color information
+                        color_str = ""
+                        if getattr(item.font, "color", None):
+                            font_color = getattr(item.font, "color", None)
+                            if hasattr(font_color, 'rgb') and font_color.rgb:
+                                color_str = f" Color:#{font_color.rgb}"
+                            elif hasattr(font_color, 'indexed') and font_color.indexed is not None:
+                                color_str = f" Color:Index({font_color.indexed})"
+                            elif hasattr(font_color, 'theme') and font_color.theme is not None:
+                                color_str = f" Color:Theme({font_color.theme})"
+                                if hasattr(font_color, 'tint') and font_color.tint is not None:
+                                    color_str += f" Tint({font_color.tint})"
+                            else:
+                                color_str = " Color:present"
+                        
+                        logger.debug(f"Text segment {i}: '{item.text[:20]}...' {color_str}")
+                    else:
+                        logger.debug(f"Text segment {i}: '{item.text[:20]}...' no font")
+                    
                     rich_info["segments"].append(segment_info)
 
                 elif isinstance(item, str):
@@ -519,9 +803,12 @@ class ExcelProcessor(BaseProcessor):
                     rich_info["segments"].append(
                         {"text": item, "font": None, "segment_index": i}
                     )
+                    logger.debug(f"Plain text segment {i}: '{item[:20]}...'")
 
         except Exception as e:
             logger.error(f"Error parsing rich text object: {e}")
+            import traceback
+            traceback.print_exc()
 
         return rich_info
 
@@ -655,7 +942,7 @@ class ExcelProcessor(BaseProcessor):
         target_language: str = "en",
     ) -> None:
         """
-        Apply rich text formatting to translated text.
+        Apply rich text formatting to translated text with enhanced multi-segment support.
 
         Args:
             cell: openpyxl cell object
@@ -668,39 +955,236 @@ class ExcelProcessor(BaseProcessor):
             return
 
         try:
+            logger.debug(f"Applying rich text format to {cell.coordinate}")
+            
             segments = rich_text_info.get("segments", [])
+            merged_info = rich_text_info.get("merged_info")
+            
             if not segments:
                 return
+
+            # Handle merged cells specially
+            target_cells = [cell]  # Default to just current cell
+            
+            if merged_info:
+                logger.debug(f"Processing merged cell: {merged_info['range']}")
+                # For merged cells, need to sync to all cells
+                target_cells = merged_info.get('all_cells', [cell])
+                logger.debug(f"Target cells count: {len(target_cells)}")
 
             # Create new rich text parts
             rich_text_parts = []
 
-            # For simplicity, apply the first segment's format to the entire translated text
-            # More sophisticated mapping could be implemented based on text length ratios
+            # If only one segment, apply to entire translated text
+            if len(segments) == 1:
+                segment = segments[0]
+                if segment.get("font"):
+                    # Create inline font with language support
+                    font_info = segment['font'].copy()
+                    if target_language == 'th':
+                        font_info['target_language'] = 'th'
+                    inline_font = self._create_inline_font(font_info, target_language)
+                    rich_text_parts.append(TextBlock(inline_font, translated_text))
+                    logger.debug(f"Single segment applied: {segment.get('font', {}).get('color_rgb', 'default')}")
+                else:
+                    rich_text_parts.append(translated_text)
+            else:
+                # Multiple segments: use enhanced distribution algorithm
+                self._distribute_translated_text_for_merged_cells(segments, original_text, translated_text, rich_text_parts, merged_info, target_language)
+
+            # Apply rich text to all target cells
+            if rich_text_parts:
+                successful_cells = []
+                failed_cells = []
+                
+                for target_cell in target_cells:
+                    try:
+                        target_cell._value = CellRichText(rich_text_parts)
+                        successful_cells.append(target_cell.coordinate)
+                    except Exception as apply_err:
+                        logger.warning(f"Apply to {target_cell.coordinate} failed: {apply_err}")
+                        failed_cells.append(target_cell.coordinate)
+                        # Fall back to plain text
+                        try:
+                            target_cell.value = translated_text
+                        except Exception:
+                            pass
+                
+                if successful_cells:
+                    logger.debug(f"Rich text applied successfully to: {', '.join(successful_cells)}")
+                if failed_cells:
+                    logger.warning(f"Application failed for cells: {', '.join(failed_cells)}")
+
+        except Exception as e:
+            logger.error(f"Error applying rich text format: {e}")
+            import traceback
+            traceback.print_exc()
+            # Fall back to plain text
+            cell.value = translated_text
+    
+    def _distribute_translated_text_for_merged_cells(self, segments: List[Dict], original_text: str, 
+                                                    translated_text: str, rich_text_parts: List, 
+                                                    merged_info: Optional[Dict[str, Any]], target_language: str = 'en') -> None:
+        """
+        Enhanced text distribution algorithm optimized for merged cells.
+        
+        Args:
+            segments: Original text segments list
+            original_text: Original complete text
+            translated_text: Translated complete text
+            rich_text_parts: Rich text parts list (output)
+            merged_info: Merged cell information
+            target_language: Target language code
+        """
+        try:
+            logger.debug(f"Enhanced text distribution for merged cells")
+            if merged_info:
+                logger.debug(f"Merged range: {merged_info.get('range', 'unknown')}")
+            
+            # For merged cells, use more intelligent distribution strategy
+            if len(segments) <= 2:
+                # If few segments, distribute by proportion
+                self._distribute_translated_text(segments, original_text, translated_text, rich_text_parts, target_language)
+                return
+            
+            # For multi-segment merged cells, prioritize main color segments
+            # Find the longest segment as main segment
+            main_segment = max(segments, key=lambda s: len(s.get('text', '')))
+            main_segment_index = segments.index(main_segment)
+            
+            # Distribution strategy: main segment gets 70% of translated text, others get remaining
+            main_portion = 0.7
+            
+            translated_len = len(translated_text)
+            main_text_len = int(translated_len * main_portion)
+            other_text_len = translated_len - main_text_len
+            
+            # Distribute text
+            other_segments = [s for i, s in enumerate(segments) if i != main_segment_index]
+            other_segment_len = other_text_len // len(other_segments) if other_segments else 0
+            
+            current_pos = 0
+            for i, segment in enumerate(segments):
+                if i == main_segment_index:
+                    # Main segment
+                    segment_text = translated_text[current_pos:current_pos + main_text_len]
+                    current_pos += main_text_len
+                else:
+                    # Other segments
+                    if i == len(segments) - 1:
+                        # Last segment, use all remaining text
+                        segment_text = translated_text[current_pos:]
+                    else:
+                        segment_text = translated_text[current_pos:current_pos + other_segment_len]
+                        current_pos += other_segment_len
+                
+                # Create text block with language support
+                if segment.get("font"):
+                    font_info = segment['font'].copy()
+                    if target_language == 'th':
+                        font_info['target_language'] = 'th'
+                    inline_font = self._create_inline_font(font_info, target_language)
+                    rich_text_parts.append(TextBlock(inline_font, segment_text))
+                    
+                    # Display color info
+                    color_info = ""
+                    if segment.get('font', {}).get('color_rgb'):
+                        color_info = f" Color:#{segment['font']['color_rgb']}"
+                    elif segment.get('font', {}).get('color_indexed'):
+                        color_info = f" Color:Indexed({segment['font']['color_indexed']})"
+                    elif segment.get('font', {}).get('color_theme'):
+                        color_info = f" Color:Theme({segment['font']['color_theme']})"
+                    
+                    logger.debug(f"Segment {i}: '{segment_text[:20]}...'{color_info}")
+                else:
+                    rich_text_parts.append(segment_text)
+                    logger.debug(f"Segment {i}: '{segment_text[:20]}...' no format")
+            
+        except Exception as e:
+            logger.warning(f"Enhanced text distribution failed: {e}")
+            # Fall back to simple distribution
+            self._distribute_translated_text(segments, original_text, translated_text, rich_text_parts, target_language)
+    
+    def _distribute_translated_text(self, segments: List[Dict], original_text: str, 
+                                   translated_text: str, rich_text_parts: List, target_language: str = 'en') -> None:
+        """
+        Distribute translated text proportionally among segments.
+        
+        Args:
+            segments: Original text segments list
+            original_text: Original complete text
+            translated_text: Translated complete text
+            rich_text_parts: Rich text parts list (output)
+            target_language: Target language code
+        """
+        try:
+            # Calculate proportions for each segment
+            total_length = len(original_text)
+            if total_length == 0:
+                return
+            
+            # Simplification: if too many segments, use first segment's format for entire text
+            if len(segments) > 5:
+                first_segment = segments[0]
+                if first_segment.get("font"):
+                    font_info = first_segment['font'].copy()
+                    if target_language == 'th':
+                        font_info['target_language'] = 'th'
+                    inline_font = self._create_inline_font(font_info, target_language)
+                    rich_text_parts.append(TextBlock(inline_font, translated_text))
+                else:
+                    rich_text_parts.append(translated_text)
+                return
+            
+            # Proportional distribution
+            translated_pos = 0
+            for i, segment in enumerate(segments):
+                segment_text = segment.get('text', '')
+                segment_length = len(segment_text)
+                
+                if segment_length == 0:
+                    continue
+                
+                # Calculate proportion for this segment
+                if i == len(segments) - 1:
+                    # Last segment, use all remaining text
+                    segment_translated = translated_text[translated_pos:]
+                else:
+                    # Proportional calculation
+                    proportion = segment_length / total_length
+                    segment_translated_length = int(len(translated_text) * proportion)
+                    segment_translated = translated_text[translated_pos:translated_pos + segment_translated_length]
+                    translated_pos += segment_translated_length
+                
+                # Create text block
+                if segment.get("font"):
+                    font_info = segment['font'].copy()
+                    if target_language == 'th':
+                        font_info['target_language'] = 'th'
+                    inline_font = self._create_inline_font(font_info, target_language)
+                    rich_text_parts.append(TextBlock(inline_font, segment_translated))
+                else:
+                    rich_text_parts.append(segment_translated)
+            
+        except Exception as e:
+            logger.warning(f"Text distribution failed: {e}")
+            # Fall back: use first segment's format
             if segments:
                 first_segment = segments[0]
                 if first_segment.get("font"):
-                    # Create inline font
-                    font_info = first_segment["font"]
+                    font_info = first_segment['font'].copy()
+                    if target_language == 'th':
+                        font_info['target_language'] = 'th'
                     inline_font = self._create_inline_font(font_info, target_language)
                     rich_text_parts.append(TextBlock(inline_font, translated_text))
                 else:
                     rich_text_parts.append(translated_text)
 
-            # Apply rich text to cell
-            if rich_text_parts:
-                cell._value = CellRichText(rich_text_parts)
-
-        except Exception as e:
-            logger.error(f"Error applying rich text format: {e}")
-            # Fall back to plain text
-            cell.value = translated_text
-
     def _create_inline_font(
         self, font_info: Dict[str, Any], target_language: str = "en"
     ) -> InlineFont:
         """
-        Create an InlineFont object from font information.
+        Create an InlineFont object from font information with enhanced color support.
 
         Args:
             font_info: Font information dictionary
@@ -713,6 +1197,9 @@ class ExcelProcessor(BaseProcessor):
 
         if font_info.get("name"):
             font_kwargs["rFont"] = font_info["name"]
+        # For Thai rich text, set appropriate font
+        elif 'target_language' in font_info and font_info['target_language'] == 'th':
+            font_kwargs["rFont"] = "TH SarabunPSK"
         elif target_language == "th":
             font_kwargs["rFont"] = "TH SarabunPSK"
 
@@ -723,11 +1210,254 @@ class ExcelProcessor(BaseProcessor):
         if font_info.get("italic"):
             font_kwargs["i"] = font_info["italic"]
         if font_info.get("underline"):
-            font_kwargs["u"] = font_info["underline"]
+            # Fix underline value validation issue
+            underline_value = font_info["underline"]
+            if underline_value is True:
+                font_kwargs["u"] = "single"
+            elif underline_value in ['single', 'singleAccounting', 'double', 'doubleAccounting']:
+                font_kwargs["u"] = underline_value
+            # Other cases don't set underline
+
+        # Enhanced color handling
         if font_info.get("color"):
-            font_kwargs["color"] = font_info["color"]
+            try:
+                font_kwargs["color"] = font_info["color"]
+                logger.debug(f"Using original color object")
+            except Exception as color_err:
+                logger.debug(f"Using original color object failed: {color_err}")
+                
+                # Try using backup color information
+                if font_info.get('color_rgb'):
+                    try:
+                        font_kwargs["color"] = Color(rgb=font_info['color_rgb'])
+                        logger.debug(f"Using RGB color: #{font_info['color_rgb']}")
+                    except Exception as rgb_err:
+                        logger.debug(f"Using RGB color failed: {rgb_err}")
+                        
+                elif font_info.get('color_indexed') is not None:
+                    try:
+                        font_kwargs["color"] = Color(indexed=font_info['color_indexed'])
+                        logger.debug(f"Using indexed color: {font_info['color_indexed']}")
+                    except Exception as idx_err:
+                        logger.debug(f"Using indexed color failed: {idx_err}")
+                        
+                elif font_info.get('color_theme') is not None:
+                    try:
+                        if font_info.get('color_tint') is not None:
+                            font_kwargs["color"] = Color(theme=font_info['color_theme'], tint=font_info['color_tint'])
+                            logger.debug(f"Using theme color: {font_info['color_theme']} tint: {font_info['color_tint']}")
+                        else:
+                            font_kwargs["color"] = Color(theme=font_info['color_theme'])
+                            logger.debug(f"Using theme color: {font_info['color_theme']}")
+                    except Exception as theme_err:
+                        logger.debug(f"Using theme color failed: {theme_err}")
 
         return InlineFont(**font_kwargs)
+    
+    def _safe_copy_color(self, color_obj) -> Optional[Color]:
+        """
+        Safely copy color object to avoid StyleProxy issues.
+        
+        Args:
+            color_obj: Original color object
+            
+        Returns:
+            New color object or None
+        """
+        if not color_obj:
+            return None
+        
+        try:
+            # Method 1: Priority use RGB values
+            if hasattr(color_obj, 'rgb') and color_obj.rgb:
+                new_color = Color(rgb=color_obj.rgb)
+                logger.debug(f"Copied RGB color: #{color_obj.rgb}")
+                return new_color
+            
+            # Method 2: Use indexed color
+            elif hasattr(color_obj, 'indexed') and color_obj.indexed is not None:
+                new_color = Color(indexed=color_obj.indexed)
+                logger.debug(f"Copied indexed color: {color_obj.indexed}")
+                return new_color
+            
+            # Method 3: Use theme color
+            elif hasattr(color_obj, 'theme') and color_obj.theme is not None:
+                if hasattr(color_obj, 'tint') and color_obj.tint is not None:
+                    new_color = Color(theme=color_obj.theme, tint=color_obj.tint)
+                    logger.debug(f"Copied theme color: {color_obj.theme} tint: {color_obj.tint}")
+                else:
+                    new_color = Color(theme=color_obj.theme)
+                    logger.debug(f"Copied theme color: {color_obj.theme}")
+                return new_color
+            
+            # Method 4: Use auto color
+            elif hasattr(color_obj, 'auto') and color_obj.auto is not None:
+                new_color = Color(auto=color_obj.auto)
+                logger.debug(f"Copied auto color: {color_obj.auto}")
+                return new_color
+            
+            # Method 5: Try to return original object
+            else:
+                logger.debug(f"Using original color object")
+                return color_obj
+                
+        except Exception as e:
+            logger.warning(f"Failed to copy color object: {e}")
+            
+            # Final fallback: try to extract all possible color information
+            try:
+                # Check object attributes
+                if hasattr(color_obj, '__dict__'):
+                    attrs = color_obj.__dict__
+                    logger.debug(f"Color object attributes: {attrs}")
+                    
+                    # Try to construct new color object
+                    color_kwargs = {}
+                    for attr in ['rgb', 'indexed', 'theme', 'tint', 'auto']:
+                        if hasattr(color_obj, attr) and getattr(color_obj, attr) is not None:
+                            color_kwargs[attr] = getattr(color_obj, attr)
+                    
+                    if color_kwargs:
+                        new_color = Color(**color_kwargs)
+                        logger.debug(f"Constructed color from attributes: {color_kwargs}")
+                        return new_color
+                
+                # If all methods fail, return original object
+                return color_obj
+                
+            except Exception as backup_err:
+                logger.warning(f"Backup color copy method also failed: {backup_err}")
+                return color_obj  # Return original object as last resort
+    
+    def _check_merged_cell(self, cell) -> Optional[Dict[str, Any]]:
+        """
+        Check if cell is part of a merged cell and return related information.
+        
+        Args:
+            cell: openpyxl cell object
+            
+        Returns:
+            Merged cell information dictionary or None
+        """
+        try:
+            worksheet = cell.parent
+            if not worksheet or not hasattr(worksheet, 'merged_cells'):
+                return None
+            
+            cell_coord = cell.coordinate
+            for merged_range in worksheet.merged_cells.ranges:
+                if cell_coord in merged_range:
+                    # Get all cells in the merged range
+                    all_cells = []
+                    for row in worksheet[merged_range.coord]:
+                        if isinstance(row, (list, tuple)):
+                            all_cells.extend(row)
+                        else:
+                            all_cells.append(row)
+                    
+                    return {
+                        'is_merged': True,
+                        'range': str(merged_range),
+                        'top_left': merged_range.coord.split(':')[0],
+                        'bottom_right': merged_range.coord.split(':')[1] if ':' in merged_range.coord else merged_range.coord.split(':')[0],
+                        'all_cells': all_cells,
+                        'merged_range_obj': merged_range
+                    }
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error checking merged cell: {e}")
+            return None
+    
+    def _synchronize_merged_cell_formats(self, cell, original_text: str, translated_text: str, 
+                                        format_info: Dict[str, Any], rich_text_info: Optional[Dict[str, Any]], 
+                                        merged_cell_info: Dict[str, Any]) -> None:
+        """
+        Synchronize merged cell formats to all related cells.
+        
+        Args:
+            cell: Current cell
+            original_text: Original text
+            translated_text: Translated text
+            format_info: Format information
+            rich_text_info: Rich text information
+            merged_cell_info: Merged cell information
+        """
+        try:
+            logger.debug(f"Synchronizing merged cell format: {merged_cell_info['range']}")
+            
+            # Get all merged cells
+            all_cells = merged_cell_info.get('all_cells', [])
+            if not all_cells:
+                logger.debug(f"No merged cell list found, using backup method")
+                # Backup method: manually get from worksheet
+                worksheet = cell.parent
+                merged_range = merged_cell_info['merged_range_obj']
+                for row_cells in worksheet[merged_range.coord]:
+                    if isinstance(row_cells, (list, tuple)):
+                        all_cells.extend(row_cells)
+                    else:
+                        all_cells.append(row_cells)
+            
+            # Synchronize to all cells
+            successful_syncs = []
+            failed_syncs = []
+            
+            for target_cell in all_cells:
+                try:
+                    # Skip current cell (already processed)
+                    if target_cell.coordinate == cell.coordinate:
+                        continue
+                        
+                    # Set text value first
+                    target_cell.value = translated_text
+                    
+                    # Apply basic format
+                    if format_info:
+                        self._apply_cell_format(target_cell, format_info)
+                    
+                    # Apply rich text format if available
+                    if rich_text_info and rich_text_info.get("has_rich_text"):
+                        self._apply_rich_text_format(
+                            target_cell, original_text, translated_text, rich_text_info
+                        )
+                    
+                    successful_syncs.append(target_cell.coordinate)
+                    
+                except Exception as sync_err:
+                    logger.warning(f"Synchronization to {target_cell.coordinate} failed: {sync_err}")
+                    failed_syncs.append(target_cell.coordinate)
+                    
+                    # Try to at least sync text content
+                    try:
+                        target_cell.value = translated_text
+                    except Exception:
+                        pass
+            
+            # Report synchronization results
+            if successful_syncs:
+                logger.debug(f"Successfully synchronized to: {', '.join(successful_syncs)}")
+            if failed_syncs:
+                logger.warning(f"Synchronization failed: {', '.join(failed_syncs)}")
+            
+            # Special handling: if rich text exists and there are failures, try simpler sync
+            if rich_text_info and failed_syncs:
+                logger.debug(f"Trying simplified synchronization method...")
+                for coord in failed_syncs:
+                    try:
+                        target_cell = cell.parent[coord]
+                        # Use first segment's format for entire text
+                        segments = rich_text_info.get('segments', [])
+                        if segments and segments[0].get('font'):
+                            inline_font = self._create_inline_font(segments[0]['font'])
+                            target_cell._value = CellRichText([TextBlock(inline_font, translated_text)])
+                            logger.debug(f"Simplified sync successful: {coord}")
+                    except Exception as simple_err:
+                        logger.warning(f"Simplified sync also failed: {coord} - {simple_err}")
+            
+        except Exception as e:
+            logger.error(f"Error synchronizing merged cell formats: {e}")
 
     def _smart_adjust_column_width(self, workbook) -> None:
         """

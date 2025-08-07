@@ -157,12 +157,12 @@ def should_translate_text(text: str) -> bool:
     if re.fullmatch(r"[\W_]+", text):
         return False
 
-    # Skip pure English letters (single words without spaces)
-    if re.fullmatch(r"[a-zA-Z]+", text) and len(text) <= 10:
+    # Skip very short pure English letters (like single letters or obvious codes)
+    if re.fullmatch(r"[a-zA-Z]+", text) and len(text) <= 2:
         return False
 
-    # Skip alphanumeric combinations (like IDs, codes)
-    if re.fullmatch(r"[a-zA-Z0-9]+", text):
+    # Skip obvious alphanumeric codes (mixed letters and numbers)
+    if re.fullmatch(r"[a-zA-Z0-9]+", text) and re.search(r"\d", text) and re.search(r"[a-zA-Z]", text):
         return False
 
     # Skip numbers with symbols (prices, percentages, measurements)
@@ -224,6 +224,20 @@ def should_translate_text(text: str) -> bool:
         # Translate longer English phrases (3+ words or complex content)
         if len(text.split()) >= 3 or len(text) > 20:
             return True
+
+    # For single English words (meaningful words that should be translated)
+    if re.fullmatch(r"[a-zA-Z]+", text) and len(text) >= 3:
+        # Skip common technical abbreviations/codes
+        common_codes = {
+            "ID", "URL", "API", "XML", "JSON", "HTML", "CSS", "SQL", "HTTP", "HTTPS",
+            "FTP", "SSH", "TCP", "UDP", "IP", "DNS", "SSL", "TLS", "VPN",
+            "OK", "NO", "YES", "ON", "OFF", "MAX", "MIN", "AVG", "SUM"
+        }
+        if text.upper() in common_codes:
+            return False
+        
+        # Translate meaningful English words
+        return True
 
     # Default: don't translate
     return False
