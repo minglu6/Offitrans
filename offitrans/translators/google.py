@@ -64,10 +64,11 @@ class GoogleTranslator(BaseAPITranslator):
         """
         # If no API key provided, try to get from environment variable
         if api_key is None:
-            api_key = os.getenv('google_api_key')
+            api_key = os.getenv('GOOGLE_TRANSLATE_API_KEY')
         
         # Set default API URL based on API type
-        if 'api_url' not in kwargs:
+        api_url = kwargs.get('api_url')
+        if not api_url:
             if use_free_api:
                 kwargs['api_url'] = "https://translate.googleapis.com/translate_a/single"
             else:
@@ -139,7 +140,8 @@ class GoogleTranslator(BaseAPITranslator):
                 self.api_url,
                 params=params,
                 timeout=self.timeout,
-                headers=headers
+                headers=headers,
+                proxies=self.proxies
             )
             response.raise_for_status()
             
@@ -217,7 +219,8 @@ class GoogleTranslator(BaseAPITranslator):
                 self.api_url,
                 data=params,
                 timeout=self.timeout,
-                headers={'Content-Type': 'application/x-www-form-urlencoded'}
+                headers={'Content-Type': 'application/x-www-form-urlencoded'},
+                proxies=self.proxies
             )
             response.raise_for_status()
             
@@ -304,7 +307,8 @@ class GoogleTranslator(BaseAPITranslator):
                 response = requests.get(
                     self.api_url,
                     params=params,
-                    timeout=self.timeout
+                    timeout=self.timeout,
+                    proxies=self.proxies
                 )
                 response.raise_for_status()
                 
@@ -324,7 +328,7 @@ class GoogleTranslator(BaseAPITranslator):
                     'q': text[:1000]  # Limit text length for detection
                 }
                 
-                response = requests.post(detect_url, data=params, timeout=self.timeout)
+                response = requests.post(detect_url, data=params, timeout=self.timeout, proxies=self.proxies)
                 response.raise_for_status()
                 
                 result = response.json()
@@ -354,7 +358,7 @@ class GoogleTranslator(BaseAPITranslator):
                     'target': 'en'  # Get language names in English
                 }
                 
-                response = requests.get(url, params=params, timeout=self.timeout)
+                response = requests.get(url, params=params, timeout=self.timeout, proxies=self.proxies)
                 response.raise_for_status()
                 
                 result = response.json()

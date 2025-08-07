@@ -32,7 +32,7 @@ def basic_excel_translation():
     config = Config()
     config.translator.max_workers = 3  # Use 3 concurrent workers
     config.processor.font_size_adjustment = 0.8  # Adjust font size to 80%
-    config.cache.enabled = True  # Enable caching
+    config.cache.enabled = False  # Disable caching
     
     # Create Excel processor with custom config
     processor = ExcelProcessor(config=config)
@@ -194,8 +194,9 @@ def translation_with_different_languages():
             translator = GoogleTranslator(
                 source_lang="zh",
                 target_lang=lang_code,
-                use_free_api=True,
-                max_workers=1
+                use_free_api=False,
+                max_workers=1,
+                # proxies=proxies
             )
             
             translated = translator.translate_text(chinese_text)
@@ -213,10 +214,10 @@ def main():
     print("This example demonstrates how to use the Offitrans library")
     
     # Run all examples
-    basic_translator_usage()
+    # basic_translator_usage()
     # processor_factory_example()
     # translation_with_different_languages()
-    # basic_excel_translation()
+    basic_excel_translation()
     
     print("\n" + "=" * 60)
     print("Examples completed!")

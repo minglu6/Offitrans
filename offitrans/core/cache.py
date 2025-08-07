@@ -295,7 +295,7 @@ def cached_translation(cache_instance: Optional[TranslationCache] = None):
         @wraps(translate_func)
         def wrapper(self, text: str) -> str:
             # Check if caching is enabled for this translator
-            if not getattr(self, 'enable_cache', True):
+            if not getattr(self, 'enable_cache', False):
                 logger.debug(f"Cache disabled, calling API directly: {text[:50]}...")
                 return translate_func(self, text)
             

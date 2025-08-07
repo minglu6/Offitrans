@@ -30,6 +30,7 @@ class BaseAPITranslator(BaseTranslator):
                  api_url: Optional[str] = None,
                  rate_limit_requests: int = 100,
                  rate_limit_window: int = 60,
+                 proxies: Optional[Dict[str, str]] = None,
                  **kwargs):
         """
         Initialize API-based translator.
@@ -39,6 +40,7 @@ class BaseAPITranslator(BaseTranslator):
             api_url: Base URL for the API (optional)
             rate_limit_requests: Maximum requests per window (default: 100)
             rate_limit_window: Rate limit window in seconds (default: 60)
+            proxies: Proxy configuration dict (e.g., {'http': 'http://127.0.0.1:7890', 'https': 'http://127.0.0.1:7890'})
             **kwargs: Additional arguments passed to BaseTranslator
         """
         super().__init__(**kwargs)
@@ -47,6 +49,7 @@ class BaseAPITranslator(BaseTranslator):
         self.api_url = api_url
         self.rate_limit_requests = rate_limit_requests
         self.rate_limit_window = rate_limit_window
+        self.proxies = proxies
         
         # Rate limiting tracking
         self._request_times = []
